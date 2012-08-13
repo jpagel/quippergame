@@ -1,13 +1,5 @@
 <?php
-function getDbcredentials(){
-	return array(
-		'dbname' => 'db_792fa253',
-		'dbuser' => 'user_792fa253',
-		'dbpass' => 'zIa^ROE3yIElF8',
-		'dbhost' => 'a.db.shared.orchestra.io'
-	);
-}
-
+require( 'dbcredentials.inc.php' );
 class database{
 	protected $pdo = false;
 	public function __CONSTRUCT( $credentials ){
