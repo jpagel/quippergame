@@ -1,5 +1,5 @@
 <?php
-var_dump($testemail());
+var_dump(testemail());
 
 function testemail(){
     $to = 'jfpagel@gmail.com';
@@ -7,6 +7,6 @@ function testemail(){
     $body = date( 'Ymd H:i:s' ) . "\n\nJust testing.\nLove, the quippergame API";
     $headers = "From: api@quipper.com\r\n" .
                 "Reply-To: jfpagel@fasstmail.fm\r\n" .
-                "X-Mailer: PHP/' . phpversion();
+                "X-Mailer: PHP/" . phpversion();
     return mail( $to, $subject, $body, $headers );
 }
