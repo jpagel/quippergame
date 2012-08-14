@@ -23,11 +23,15 @@ function addUserToGame( $params ){
     }
     else{
         $status = 'success';
+        $gameinfo = $db->getGameInfo( $params[ 'gameid' ] );
         $error = '';
     }
     $info = array( 'status' => $status );
     if( $error ){
         $info[ 'error' ] = $error;
+    }
+    else{
+        $info[ 'questionids' ] = $gameinfo[ 'questionids' ];
     }
     return $info;
 }

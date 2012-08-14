@@ -18,6 +18,10 @@ class database{
         $sql = "SELECT * FROM game";
         return $this->pdo->query( $sql )->fetchAll();
     }
+    public function getGameInfo( $gameid ){
+        $sql = "SELECT * FROM game WHERE id = $gameid";
+        return $this->pdo->query( $sql )->fetch();
+    }
 	public function fetchAll( $sql, $mode=PDO::FETCH_ASSOC ){
 		$res = $this->pdo->query( $sql )->fetchAll( $mode );
 		return $res;
