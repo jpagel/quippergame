@@ -129,6 +129,7 @@ CREATE TABLE `invitation` (
   `from_id` int(10) unsigned default NULL,
   `to_id` int(10) unsigned default NULL,
   `game_id` int(10) unsigned default NULL,
+  `friend` tinyint(4) unsigned default 0 NOT NULL,
   UNIQUE KEY `idx_invitation` (`from_id`,`to_id`,`game_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;

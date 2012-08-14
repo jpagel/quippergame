@@ -23,7 +23,7 @@ function sendInvitations( $params ){
     $errorlist = array();
     $db = new database( getDbcredentials() );
     foreach( $tolist as $toid ){
-        if( $error = inviteSingle( $gameid, $from, $toid, $db ) ){
+        if( $error = inviteSingle( $gameid, $from, $toid, 1, $db ) ){
             $errorlist[] = $error;
         }
     }

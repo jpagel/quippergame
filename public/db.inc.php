@@ -39,12 +39,16 @@ class database{
         $coinsdelta = $amount;
         $sql = "SELECT user_id FROM gamesession WHERE game_id = $gameid";
         $userids = implode( ',',$this->fetchColumn( $sql ) );
-        $bonusql = "UPDATE user SET coins = coins + $coinsdelta WHERE id IN ($userids)";
+        $bonusqlist = array();
+        $bonusqlist[] = "UPDATE user SET coins = coins + $coinsdelta WHERE id IN ($userids)";
         if( 2 == $n && $lastuser ){
             //lastuser needs the bonus again
-            $bonusql[] = "UPDATE user SET coins = coins + $coinsdelta WHERE id = $lastuser";
+            $bonusqlist[] = "UPDATE user SET coins = coins + $coinsdelta WHERE id = $lastuser";
         }
-        return $this->pdo->exec($bonusql);
+        foreach( $bonusqlist as $bonusql ){
+            $info = $this->pdo->exec($bonusql);
+        }
+        return $info;
     }
 
     public function getCategoryNameForGame( $gameid ){
@@ -315,10 +319,10 @@ class database{
         return $userinfo[ 'username' ];
     }
 
-    public function insertInvitation( $gameid, $from, $to ){
+    public function insertInvitation( $gameid, $from, $to, $friend ){
         $fromid = $this->getUserIdFromUserName( $from );
         $toid = $this->getUserIdFromUserName( $to );
-        $sql = "INSERT INTO invitation (game_id, from_id, to_id) VALUES ($gameid, $fromid, $toid)";
+        $sql = "INSERT INTO invitation (game_id, from_id, to_id, friend ) VALUES ($gameid, $fromid, $toid, $friend)";
         if( $status = $this->pdo->exec( $sql ) ){
             return $status;
         }

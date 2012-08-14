@@ -4,7 +4,7 @@ define( 'COINS_BONUS_FIRST', 300 );
 define( 'COINS_BONUS_SECOND', 200 );
 define( 'COINS_BONUS_THIRD', 100 );
 define( 'COINS_BONUS_NOFPLAYERS', 100 );
-define( 'MAX_PLAYERS_PER_GAME', 3 );
+define( 'MAX_PLAYERS_PER_GAME', 10 );
 define( 'HISTORICAL_GAME_LIMIT', 3 );
 
 date_default_timezone_set('Europe/London');
@@ -40,7 +40,7 @@ function findError( $params, $required=array(), $numeric=array(), $commaseparate
     }
     return $errorlist;
 }
-function inviteSingle( $gameid, $from, $to, $db=false ){
+function inviteSingle( $gameid, $from, $to, $friend, $db=false ){
     //get $to's device id and 
     if( !$db ){
 	    $db = new database( getDbcredentials() );
@@ -53,7 +53,7 @@ function inviteSingle( $gameid, $from, $to, $db=false ){
         $msg = "$displayname has invited you to game $gameid";
         sendIosNotification( $deviceid, $msg );
         //add to invite table
-        if( $db->insertInvitation( $gameid, $from, $to ) ){
+        if( $db->insertInvitation( $gameid, $from, $to, $friend ) ){
             //ok
         }
         else{
