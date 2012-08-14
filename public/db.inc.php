@@ -186,6 +186,14 @@ class database{
                 LIMIT 1";
         return $this->pdo->query( $sql )->fetchColumn();
     }
+    
+    public function getDeviceIdForUserId( $userid ){
+        $info = $this->fetchColumn( "SELECT device_id FROM user_device WHERE user_id = $userid LIMIT 1" );
+        if( $info ){
+            return array_shift( $info );
+        }
+        return false;
+    }
 
     public function deleteInvitation( $gameid, $username ){
         $userid = $this->getUserIdFromUserName( $username );
@@ -276,7 +284,7 @@ class database{
                 LIMIT $limit
         ";
     }
-    public function chooseTeammates( $gameid, $categoryid, $level, $debug=false ){
+    public function chooseTeammates( $gameid, $categoryid, $level, $fromid=false, $debug=false ){
         //find recently active games of same category and level
         $max = MAX_PLAYERS_PER_GAME;
         $limit = $max;
@@ -300,7 +308,13 @@ class database{
             $limit = $max - count( $idlist );
             $whereandlist = $criteria[ 0 ];
             $hourslimit = $criteria[ 1 ];
-            $sql = $this->prepareTeammateSql( $gameid, $whereandlist, $hourslimit, $limit, $idlist );
+            if( $fromid ){
+                $excludelist = array_merge( array( $fromid ), $idlist );
+            }
+            else{
+                $excludelist = $idlist;
+            }
+            $sql = $this->prepareTeammateSql( $gameid, $whereandlist, $hourslimit, $limit, $excludelist );
             if( $debug ){
                 echo $sql; echo '<hr />';
             }
@@ -314,6 +328,29 @@ class database{
                 return $idlist;
             }
         } 
+        if( $diff = $max - count( $idlist ) ){
+            if( 0 < $diff ){
+                //just get $diff more players from gamesession
+                if( $fromid ){
+                    $excludelist = array_merge( array( $fromid ), $idlist );
+                }
+                else{
+                    $excludelist = $idlist;
+                }
+                $sql = "SELECT distinct user_id FROM gamesession ";
+                if( count( $excludelist ) ){
+                    $sql .= "WHERE user_id NOT IN (" . implode( ',', $excludelist ) . ") ";
+                }
+                $sql .= "ORDER BY game_id DESC LIMIT $diff";
+                if( $debug ){
+                    echo $sql; echo '<hr />';
+                    var_dump($idlist); echo '<hr />';
+                }
+                if( $newids = $this->fetchColumn( $sql ) ){
+                    $idlist = array_merge( $idlist, $newids );
+                }
+            }
+        }
         return $idlist;
     }
 
@@ -328,7 +365,13 @@ class database{
 
     public function insertInvitation( $gameid, $from, $to, $friend ){
         $fromid = $this->getUserIdFromUserName( $from );
-        $toid = $this->getUserIdFromUserName( $to );
+        if( $friend ){
+            $toid = $this->getUserIdFromUserName( $to );
+        }
+        else{
+            //if friend not chosen by name, then $to is user.id not user.username
+            $toid = $to;
+        }
         $sql = "INSERT INTO invitation (game_id, from_id, to_id, friend ) VALUES ($gameid, $fromid, $toid, $friend)";
         if( $status = $this->pdo->exec( $sql ) ){
             return $status;

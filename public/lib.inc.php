@@ -9,6 +9,100 @@ define( 'HISTORICAL_GAME_LIMIT', 3 );
 
 date_default_timezone_set('Europe/London');
 
+function register($params){
+	$errorlist = array();
+	$optionalParams = array( 'displayname' );
+	foreach( $params as $key=>$value ){
+		if( !in_array( $key, $optionalParams ) ){
+			if( !$value ){
+				$errorlist[] = "missing param: $key";
+			}
+		}
+	}
+	if( count( $errorlist ) ){
+		return json_encode( 
+			array(
+				'error' => implode( ':', $errorlist )
+			) );
+	}
+	
+	//does this userid exist already?
+	$db = new database( getDbcredentials() );
+	$deviceexistsalready = $db->valueExists( 'user_device', 'device_id', $params[ 'token' ] );
+    $doregistration = true;
+	if($deviceexistsalready){
+/*
+		return json_encode(
+			array(
+				'error' => "device " . $params[ 'token' ] . " already exists"
+			)
+		);
+*/
+        //does the device belong to this user?
+        if( $deviceinfo = $db->getDeviceIdForUsername( $params[ 'username' ], $params[ 'token' ] ) ){
+            //ok ... this user already registered with this device
+		    return array(
+				    'status' => 'success'
+		    );
+        }
+        else{
+            //this device already registered to a different user
+            //register new user
+        }
+	}
+	if( $doregistration ){
+		//add user to db
+		$userid = $db->insertUser( $params );
+        if( $userid ){
+		    return array(
+				    'status' => 'success'
+		    );
+        }
+        else{
+		    return array(
+				    'status' => 'failure',
+		    );
+        }
+	}
+}
+
+function createNewGame( $params ){
+	$db = new database( getDbcredentials() );
+    $gameid = $db->startGame( $params );
+    $tolist = array();
+    if( $gameid ){
+        $gameinfo = array( 'gameid' => $gameid );
+        if( $to = $params[ 'to' ] ){
+            //send invitations to the to list
+            $tolist = explode( ',', $to );
+        }
+        else{
+            //no invitees ... choose 10 random invitees
+            $fromid = $db->getUserIdFromUserName( $params[ "user" ] );
+            $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, true );
+        }
+        if( count($tolist) ){
+            $errorlist = array();
+            $from = $params[ 'user' ];
+            foreach( $tolist as $toid ){
+                if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
+                    $errorlist[] = $error;
+                }
+            }
+        }
+        else{
+            //no invitees
+        }
+        if( $errorlist ){
+            $gameinfo[ 'error' ] = $errorlist;
+        }
+        return $gameinfo;
+    }
+    else{ 
+        return array( 'error' => 'no game created' );
+    }
+}
+
 function findError( $params, $required=array(), $numeric=array(), $commaseparatednumbers=array(), $expectedsize=false ){
     $errorlist = array();
     foreach( $params as $key=>$value ){
@@ -45,7 +139,7 @@ function inviteSingle( $gameid, $from, $to, $friend, $db=false ){
     if( !$db ){
 	    $db = new database( getDbcredentials() );
     }
-    $deviceid = $db->getDeviceIdForUsername( $to );
+    $deviceid = $db->getDeviceIdForUserId( $to );
     $error = false;
     $displayname = $db->getDisplayNameFromUsername( $from );
     if( $deviceid ){
