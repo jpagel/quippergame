@@ -7,6 +7,8 @@ define( 'COINS_BONUS_NOFPLAYERS', 100 );
 define( 'MAX_PLAYERS_PER_GAME', 3 );
 define( 'HISTORICAL_GAME_LIMIT', 3 );
 
+date_default_timezone_set('Europe/London');
+
 function findError( $params, $required=array(), $numeric=array(), $commaseparatednumbers=array(), $expectedsize=false ){
     $errorlist = array();
     foreach( $params as $key=>$value ){
