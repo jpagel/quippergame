@@ -45,9 +45,10 @@ function inviteSingle( $gameid, $from, $to, $db=false ){
     }
     $deviceid = $db->getDeviceIdForUsername( $to );
     $error = false;
+    $displayname = $db->getDisplayNameFromUsername( $from );
     if( $deviceid ){
         //send push notification
-        $msg = "User $userid has invited you to game $gameid";
+        $msg = "$displayname has invited you to game $gameid";
         sendIosNotification( $deviceid, $msg );
         //add to invite table
         if( $db->insertInvitation( $gameid, $from, $to ) ){
