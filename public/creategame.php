@@ -37,7 +37,7 @@ function createNewGame( $params ){
             $errorlist = array();
             $from = $params[ 'user' ];
             foreach( $tolist as $toid ){
-                if( $error = inviteSingle( $gameid, $from, $toid, $db ) ){
+                if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
                     $errorlist[] = $error;
                 }
             }
