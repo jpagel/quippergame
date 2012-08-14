@@ -1,5 +1,6 @@
 <?php
 require( 'dbcredentials.inc.php' );
+
 class database{
 	protected $pdo = false;
 	public function __CONSTRUCT( $credentials ){
