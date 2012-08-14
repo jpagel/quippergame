@@ -197,10 +197,13 @@ class database{
                 GROUP BY g.id
         ";
         $gameinfo = $this->fetch( $sql );
-        if( $gameinfo[ 'totalscore' ] < $gameinfo[ 'target' ] ){
-            return false;
+        if( $gameinfo ){
+	        if( $gameinfo[ 'totalscore' ] < $gameinfo[ 'target' ] ){
+	            return false;
+	        }
+	        return true;
         }
-        return true;
+        return false;
     }
 
     public function getGameStatus( $gameid ){

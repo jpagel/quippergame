@@ -20,7 +20,10 @@ else{
 function updateGame( $params ){
 	$db = new database( getDbcredentials() );
     $gameover = false;
-    if( $db->insertGameHistory( $params ) ){
+    if( $db->gameHasReachedTarget( $params[ 'gameid' ] ) ){
+        $gameover = true;
+    }
+    elseif( $db->insertGameHistory( $params ) ){
         if( $db->gameHasReachedTarget( $params[ 'gameid' ] ) ){
             $gameover = true;
             $info = finishGame( $db, $params[ 'gameid' ] );
