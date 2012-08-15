@@ -24,6 +24,7 @@ function createGames( $db, $gpu, $n=10, $msglist=array() ){
     $sql = "SELECT username FROM user ORDER BY id DESC LIMIT $n";
     $userlist = $db->fetchColumn( $sql );
     $newgamecount = 0;
+    $inviteecount = 0;
     foreach($userlist as $username ){
         //start $gpu games
         for( $i=0; $i<$gpu; $i++ ){
@@ -39,12 +40,13 @@ function createGames( $db, $gpu, $n=10, $msglist=array() ){
                 $newgamecount++;
                 if( $inviteelist = getArrayValue( $info, 'tolist' ) ){
                     $invitees = count( $inviteelist );
-                    $s = ( 1 == $invitees ) ? '':'s';
-                    $msglist[] = "$invitees invitation$s sent";
+                    $inviteecount += $invitees;
                 }
             }
         }
     }
+    $s = ( 1 == $inviteecount ) ? '':'s';
+    $msglist[] = "$inviteecount invitation$s sent";
     $s = ( 1 == $newgamecount ) ? '' : 's' ;
     $msglist[] = "$newgamecount new game$s created";
     return $msglist;
