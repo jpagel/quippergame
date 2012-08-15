@@ -52,6 +52,10 @@ class database{
         foreach( $bonusqlist as $bonusql ){
             $info = $this->pdo->exec($bonusql);
         }
+
+        //stats
+        $this->gamestatIncrement( $gameid, 'coinsearned', $coinsdelta );
+
         return $info;
     }
 
@@ -68,7 +72,7 @@ class database{
         //is game still alive?
         //has user been invited?
         $error = false;
-        $gamesql = "SELECT g.*
+        $gamesql = "SELECT g.*, i.friend
                     FROM game g
                     JOIN invitation i ON to_id = $userid AND i.game_id = $gameid
                     WHERE g.id = $gameid AND (g.start + interval 1 day) > NOW()
@@ -86,6 +90,13 @@ class database{
                 //add user to game
                 $sql = "INSERT INTO gamesession (game_id, user_id) VALUES ($gameid, $userid)";
                 $this->pdo->exec( $sql );
+
+                //create gamehistory entry
+                $sql = "INSERT INTO gamehistory (game_id, user_id, score) VALUES ($gameid, $userid, 0)
+                        ON DUPLICATE KEY UPDATE time = NOW()
+                ";
+                $this->pdo->exec( $sql );
+
                 $n += 1;
                 //delete invitation
                 $sql = "DELETE FROM invitation WHERE to_id = $userid AND game_id = $gameid";
@@ -97,6 +108,14 @@ class database{
                     $this->payGameBonus( $gameid, COINS_BONUS_NOFPLAYERS, 2-$diff, $userid );
                 }
 
+                //stats
+                if( $gameinfo[ 'friend' ] ){
+                    $statsfield = 'friendsjoined';
+                }
+                else{
+                    $statsfield = 'strangersjoined';
+                }
+                $this->gamestatIncrement( $gameid, $statsfield );
                 
                 //all is well ... return no error
                 return false;
@@ -374,6 +393,15 @@ class database{
         }
         $sql = "INSERT INTO invitation (game_id, from_id, to_id, friend ) VALUES ($gameid, $fromid, $toid, $friend)";
         if( $status = $this->pdo->exec( $sql ) ){
+            //stats
+            if( $friend ){
+                $statsfield = 'friendsinvited';
+            }
+            else{
+                $statsfield = 'strangersinvited';
+            }
+            $this->gamestatIncrement( $gameid, $statsfield );
+
             return $status;
         }
         else{
@@ -505,4 +533,13 @@ class database{
 			implode( ',', $valuelist )
 		);
 	}
+
+    public function gamestatIncrement( $gameid, $field, $n=1 ){
+        $sql = "
+            INSERT INTO gamestat (game_id, $field )
+            VALUES ($gameid, $n)
+            ON DUPLICATE KEY UPDATE $field = $field + $n
+        ";
+        return $this->pdo->exec( $sql );
+    }
 }
