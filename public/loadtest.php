@@ -14,8 +14,8 @@ function main( $n=20 ){
     $u = $n;
     $msglist = registerUsers( $db, $u, $msglist );
     
-    //create 5 games per user
-    $gpu = 1;
+    //create 3 games per user
+    $gpu = 3;
     $msglist = createGames( $db, $gpu, $n, $msglist );
     return $msglist;
 }
