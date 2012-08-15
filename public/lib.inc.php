@@ -177,6 +177,14 @@ function getArrayValue( $array, $key, $default=false ){
 	return $default;
 }
 function sendIosNotification( $deviceToken, $message ){
+/*
+    $serviceurl = "http://app-426-1344938578.orchestra.io";
+    $pushpage = 'remotepush.php';
+    $token = $deviceToken;
+    $msg=urlencode( $message );
+    $url = "$serviceurl/$pushpage?msg=$msg&token=$token";
+    get_headers( $url );
+*/
 	$passphrase = 'quiz24';
 	
 	$ctx = stream_context_create();
@@ -187,6 +195,7 @@ function sendIosNotification( $deviceToken, $message ){
 	$fp = stream_socket_client(
 		'ssl://gateway.sandbox.push.apple.com:2195', $err,
 		$errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
+    stream_set_blocking( $fp, 0 );
 	
 	if (!$fp)
 		exit("Failed to connect: $err $errstr" . PHP_EOL);

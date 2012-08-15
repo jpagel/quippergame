@@ -6,14 +6,26 @@ $req = $_GET;
 
 $t0 = microtime(true);
 $n = getArrayValue($req, 'n');
-var_dump( main( $n ) );
+//var_dump( main( $n ) );
+var_dump( testpush( $n ) );
 $tfinal = microtime(true);
 
 echo formatTimeReport( $t0, $tfinal );
 
+function testpush(){
+    $msg = date( 'Y-m-d H:i:s' ) . ' test message';
+    $outlist = array( $msg );
+    for( $i=0; $i<10; $i++ ){
+        $device = '178893bc87866f0f44d5d7bb4c3e5b84c0c3fa31b45e7e397a683f820919d89e';
+        sendIosNotification( $device, $msg );
+        $nondevice = '123';
+        sendIosNotification( $nondevice, $msg );
+    }
+    return $outlist;
+}
+
 function formatTimeReport( $t0, $tfinal ){
-    $microseconds = $tfinal - $t0;
-    $seconds = $microseconds / 1000000;
+    $seconds = $tfinal - $t0;
     return "\nTime taken: $seconds seconds\n";
 }
 
