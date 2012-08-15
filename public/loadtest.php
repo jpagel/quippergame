@@ -3,8 +3,19 @@ require( 'lib.inc.php' );
 require( 'db.inc.php' );
 
 $req = $_GET;
+
+$t0 = microtime(true);
 $n = getArrayValue($req, 'n');
 var_dump( main( $n ) );
+$tfinal = microtime(true);
+
+echo formatTimeReport( $t0, $tfinal );
+
+function formatTimeReport( $t0, $tfinal ){
+    $microseconds = $tfinal - $t0;
+    $seconds = $microseconds / 1000000;
+    return "\nTime taken: $seconds seconds\n";
+}
 
 function main( $n=20 ){
 
