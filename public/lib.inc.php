@@ -72,7 +72,7 @@ function createNewGame( $params, $debug=false ){
     $tolist = array();
     if( $gameid ){
         $gameinfo = array( 'gameid' => $gameid );
-        if( $to = $params[ 'to' ] ){
+        if( $to = getArrayValue( $params, 'to' ) ){
             //send invitations to the to list
             $tolist = explode( ',', $to );
         }
@@ -87,7 +87,8 @@ function createNewGame( $params, $debug=false ){
         if( count($tolist) ){
             $errorlist = array();
             $from = $params[ 'user' ];
-            foreach( $tolist as $toid ){
+            foreach( $tolist as $to ){
+                $toid = $db->getUserIdFromUserName( $to );
                 if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
                     $errorlist[] = $error;
                 }
@@ -175,6 +176,7 @@ function getArrayValue( $array, $key, $default=false ){
 	return $default;
 }
 function sendIosNotification( $deviceToken, $message ){
+return true;
 	$passphrase = 'quiz24';
 	
 	$ctx = stream_context_create();
