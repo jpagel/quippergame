@@ -147,12 +147,14 @@ function createNewGame( $params, $debug=false ){
             //send invitations to the to list
             $tolist = explode( ',', $to );
             $toisidsalready = false;
+            $friends = 1;
         }
         else{
             //no invitees ... choose 10 random invitees
             $fromid = $db->getUserIdFromUserName( $params[ "user" ] );
             $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, false );
             $toisidsalready = true;
+            $friends = 0;
             if( $debug ){
                 $gameinfo[ 'tolist' ] = $tolist;
             }
@@ -168,7 +170,7 @@ function createNewGame( $params, $debug=false ){
                     $toid = $to;
                 }
                 if( $toid ){
-                    if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
+                    if( $error = inviteSingle( $gameid, $from, $toid, $friends, $db ) ){
                         $errorlist[] = $error;
                     }
                 }
