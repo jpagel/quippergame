@@ -10,7 +10,7 @@ function main(){
     $msglist = array();
     //register 20 users
     $u = 20;
-    //$msglist = registerUsers( $db, $u, $msglist );
+    $msglist = registerUsers( $db, $u, $msglist );
     
     //create 5 games per user
     $gpu = 5;
