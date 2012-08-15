@@ -407,6 +407,11 @@ class database{
         return 1;
     }
 
+    public function getUserNameFromUserId( $id ){
+        $sql = "SELECT username FROM user WHERE id = $id";
+        return $this->pdo->query( $sql )->fetchColumn();
+    }
+
     public function getUserIdFromUserName( $username ){
         $sql = "SELECT id FROM user WHERE username = " . $this->pdo->quote( $username );
         return $this->pdo->query( $sql )->fetchColumn();
