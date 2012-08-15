@@ -2,24 +2,26 @@
 require( 'lib.inc.php' );
 require( 'db.inc.php' );
 
-var_dump( main() );
+$req = $_GET;
+$n = getArrayValue($req, 'n');
+var_dump( main( $n ) );
 
-function main(){
+function main( $n=20 ){
 
 	$db = new database( getDbcredentials() );
     $msglist = array();
     //register 20 users
-    $u = 20;
+    $u = $n;
     $msglist = registerUsers( $db, $u, $msglist );
     
     //create 5 games per user
-    $gpu = 5;
-    $msglist = createGames( $db, $gpu );
+    $gpu = 1;
+    $msglist = createGames( $db, $gpu, $n, $msglist );
     return $msglist;
 }
 
-function createGames( $db, $gpu, $msglist=array() ){
-    $sql = "SELECT username FROM user";
+function createGames( $db, $gpu, $n=10, $msglist=array() ){
+    $sql = "SELECT username FROM user ORDER BY id DESC LIMIT $n";
     $userlist = $db->fetchColumn( $sql );
     $newgamecount = 0;
     foreach($userlist as $username ){
@@ -32,9 +34,14 @@ function createGames( $db, $gpu, $msglist=array() ){
                 'target' => mt_rand( 20, 150 ),
                 'quids' => mkRandomQuids()
             );
-            $info = createNewGame( $params );
+            $info = createNewGame( $params, true );
             if( is_numeric( getArrayValue( $info, 'gameid' ) ) ){
                 $newgamecount++;
+                if( $inviteelist = getArrayValue( $info, 'tolist' ) ){
+                    $invitees = count( $inviteelist );
+                    $s = ( 1 == $invitees ) ? '':'s';
+                    $msglist[] = "$invitees invitation$s sent";
+                }
             }
         }
     }

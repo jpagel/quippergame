@@ -66,7 +66,7 @@ function register($params){
 	}
 }
 
-function createNewGame( $params ){
+function createNewGame( $params, $debug=false ){
 	$db = new database( getDbcredentials() );
     $gameid = $db->startGame( $params );
     $tolist = array();
@@ -79,7 +79,10 @@ function createNewGame( $params ){
         else{
             //no invitees ... choose 10 random invitees
             $fromid = $db->getUserIdFromUserName( $params[ "user" ] );
-            $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, true );
+            $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, false );
+            if( $debug ){
+                $gameinfo[ 'tolist' ] = $tolist;
+            }
         }
         if( count($tolist) ){
             $errorlist = array();
