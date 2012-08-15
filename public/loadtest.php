@@ -6,8 +6,8 @@ $req = $_GET;
 
 $t0 = microtime(true);
 $n = getArrayValue($req, 'n');
-//var_dump( main( $n ) );
-var_dump( testpush( $n ) );
+var_dump( main( $n ) );
+//var_dump( testpush( $n ) );
 $tfinal = microtime(true);
 
 echo formatTimeReport( $t0, $tfinal );
@@ -40,6 +40,56 @@ function main( $n=20 ){
     //create 3 games per user
     $gpu = 3;
     $msglist = createGames( $db, $gpu, $n, $msglist );
+
+    $msglist = joinSomeGames( $db, $gpu, $msglist );
+    $msglist = answerSomeQuizzes( $db, $gpu, $msglist );
+
+    return $msglist;
+}
+
+function generateRandomAnswers( $n=5 ){
+    $alist = array();
+    for( $i=0; $i<$n; $i++ ){
+        $alist[] = mt_rand( 0, 5 );
+    }
+    return implode( ',', $alist );
+}
+
+function answerSomeQuizzes( $db, $gpu, $msglist ){
+    $sql = "SELECT * FROM gamesession ORDER BY game_id DESC LIMIT $gpu";
+    $sessionlist = $db->fetchAll( $sql );
+    $count = 0;
+    foreach( $sessionlist as $row ){
+        $params = array(
+            'userid' => $row[ 'user_id' ],
+            'gameid' => $row[ 'game_id' ],
+            'score' => mt_rand( 0,500 ),
+            'answers' => generateRandomAnswers(5)
+        );
+        $info = updateGame( $params );
+        if( !$info[ 'error' ] ){
+            $count++;
+        }
+    }
+    $s = ( 1 == $count ) ? '' : 's' ;
+    $msglist[] = "updated $count game$s";
+    return $msglist;
+}
+
+function joinSomeGames( $db, $gpu, $msglist=array() ){
+    //find some open invitations
+    $sql = "SELECT * FROM invitation LIMIT $gpu";
+    $invitationlist = $db->fetchAll( $sql );
+    $addedcount = 0;
+    foreach($invitationlist as $row){
+        //var_dump( "adding " . $row[ 'to_id' ] . " to game " . $row[ 'game_id' ] );
+        $error = $db->addUserIdToGame( $row[ 'game_id' ], $row[ 'to_id' ] );
+        if( !$error ){
+            $addedcount++;
+        }
+    }
+    $s = ( 1 == $addedcount ) ? '' : 's' ;
+    $msglist[] = "added $addedcount users to games";
     return $msglist;
 }
 

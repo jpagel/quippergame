@@ -15,27 +15,6 @@ else{
     echo json_encode( addUserToGame( $params ) );
 }
 
-function addUserToGame( $params ){
-	$db = new database( getDbcredentials() );
-    $userid = $db->getUserIdFromUserName( $params[ 'user' ] );
-    if( $error = $db->addUserIdToGame( $params[ 'gameid' ] , $userid ) ){
-        $status = 'failure';
-    }
-    else{
-        $status = 'success';
-        $gameinfo = $db->getGameInfo( $params[ 'gameid' ] );
-        $error = '';
-    }
-    $info = array( 'status' => $status );
-    if( $error ){
-        $info[ 'error' ] = $error;
-    }
-    else{
-        $info[ 'questionids' ] = $gameinfo[ 'questionids' ];
-    }
-    return $info;
-}
-
 function invalidateParams( $params ){
     $required = array( 'user', 'gameid' );
     $numeric = array( 'gameid' );

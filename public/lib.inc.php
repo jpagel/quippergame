@@ -9,6 +9,77 @@ define( 'HISTORICAL_GAME_LIMIT', 3 );
 
 date_default_timezone_set('Europe/London');
 
+function updateGame( $params ){
+    //param user (username)
+    //param gameid
+    //param score
+    //param answers
+	$db = new database( getDbcredentials() );
+    if( $userid = getArrayValue( $params, 'userid' ) ){
+        $params[ 'user' ] = $db->getUserNameFromUserId( $userid );
+    }
+    $gameover = false;
+    if( $db->gameHasReachedTarget( $params[ 'gameid' ] ) ){
+        $gameover = true;
+    }
+    elseif( $db->insertGameHistory( $params ) ){
+        if( $db->gameHasReachedTarget( $params[ 'gameid' ] ) ){
+            $gameover = true;
+            $info = finishGame( $db, $params[ 'gameid' ] );
+        }
+        $info = array(
+            'status' => 'success'
+        );
+    }
+    else{
+        $info = array(
+            'error' => $db->getError()
+        );
+    }
+    $info[ 'gamestatus' ] = $db->getGameStatus( $params[ 'gameid' ] );
+    if( $gameover ){
+        $info[ 'gameover' ] = 1;
+    }
+    else{
+        $info[ 'gameover' ] = 0;
+    }
+    
+    return $info;
+}
+
+function finishGame( $db, $gameid ){
+    $errorlist = $db->finishGame( $gameid );
+    if( count( $errorlist ) ){
+        return array( 'error' => $errorlist );
+    }
+    return array( 'status' => 'success', 'message' => "game $gameid has reached its target" );
+}
+
+function addUserToGame( $params ){
+    //param user (username)
+    //param gameid
+	$db = new database( getDbcredentials() );
+    if( !$userid = getArrayValue( $params, 'userid' ) ){
+        $userid = $db->getUserIdFromUserName( $params[ 'user' ] );
+    }
+    if( $error = $db->addUserIdToGame( $params[ 'gameid' ] , $userid ) ){
+        $status = 'failure';
+    }
+    else{
+        $status = 'success';
+        $gameinfo = $db->getGameInfo( $params[ 'gameid' ] );
+        $error = '';
+    }
+    $info = array( 'status' => $status );
+    if( $error ){
+        $info[ 'error' ] = $error;
+    }
+    else{
+        $info[ 'questionids' ] = $gameinfo[ 'questionids' ];
+    }
+    return $info;
+}
+
 function register($params){
 	$errorlist = array();
 	$optionalParams = array( 'displayname' );
