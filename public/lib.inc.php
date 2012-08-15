@@ -146,11 +146,13 @@ function createNewGame( $params, $debug=false ){
         if( $to = getArrayValue( $params, 'to' ) ){
             //send invitations to the to list
             $tolist = explode( ',', $to );
+            $toisidsalready = false;
         }
         else{
             //no invitees ... choose 10 random invitees
             $fromid = $db->getUserIdFromUserName( $params[ "user" ] );
             $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, false );
+            $toisidsalready = true;
             if( $debug ){
                 $gameinfo[ 'tolist' ] = $tolist;
             }
@@ -159,7 +161,13 @@ function createNewGame( $params, $debug=false ){
             $errorlist = array();
             $from = $params[ 'user' ];
             foreach( $tolist as $to ){
-                if( $toid = $db->getUserIdFromUserName( $to ) ){
+                if( !$toisidsalready ){
+                    $toid = $db->getUserIdFromUserName( $to );
+                }
+                else{
+                    $toid = $to;
+                }
+                if( $toid ){
                     if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
                         $errorlist[] = $error;
                     }
@@ -298,3 +306,30 @@ function sendIosNotification( $deviceToken, $message ){
 	fclose($fp);
 	return $status;
 }
+
+function sendInvitations( $params ){
+    //param from (username)
+    //param to (comma-separated user_ids)
+    //gameid
+    extract( $params );
+    $tolist = explode( ',', $to );
+    $errorlist = array();
+    $db = new database( getDbcredentials() );
+    foreach( $tolist as $toid ){
+        if( $error = inviteSingle( $gameid, $from, $toid, 1, $db ) ){
+            $errorlist[] = $error;
+        }
+    }
+    if( count( $errorlist ) ){
+        return array(
+            'error' => $errorlist
+        );
+    }
+    else{
+        return array(
+            'category' => $db->getCategoryNameForGame( $gameid ),
+            'status' => 'success'
+        );
+    }
+}
+

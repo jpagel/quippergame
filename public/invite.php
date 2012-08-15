@@ -17,29 +17,6 @@ else{
     echo json_encode( sendInvitations( $params ) );
 }
 
-function sendInvitations( $params ){
-    extract( $params );
-    $tolist = explode( ',', $to );
-    $errorlist = array();
-    $db = new database( getDbcredentials() );
-    foreach( $tolist as $toid ){
-        if( $error = inviteSingle( $gameid, $from, $toid, 1, $db ) ){
-            $errorlist[] = $error;
-        }
-    }
-    if( count( $errorlist ) ){
-        return array(
-            'error' => $errorlist
-        );
-    }
-    else{
-        return array(
-            'category' => $db->getCategoryNameForGame( $gameid ),
-            'status' => 'success'
-        );
-    }
-}
-
 function invalidateParams( $params ){
     $required = array( 'from', 'to', 'gameid' );
     $numeric = array( 'gameid' );
