@@ -109,7 +109,7 @@ class database{
     }
 
     public function getUserStatusScreen( $userid ){
-        $invitation_sql = "SELECT g.id gameid, invitor.displayname, c.name category
+        $invitation_sql = "SELECT g.id gameid, invitor.displayname, c.id category
                             FROM invitation i
                             JOIN user invitor ON invitor.id = i.from_id
                             JOIN game g ON g.id = i.game_id
@@ -117,7 +117,7 @@ class database{
                             WHERE to_id = $userid
         ";
         $gamesession_sql = "
-            SELECT gs.game_id, c.name category,
+            SELECT gs.game_id, c.id category,
                     SUM( gh.score ) currentscore, g.target,
                     UNIX_TIMESTAMP(g.start + INTERVAL 1 DAY) - UNIX_TIMESTAMP() secondsremaining
             FROM gamesession gs
@@ -139,7 +139,7 @@ class database{
             $gamesession[ 'secondsremaining' ] = floor( $remainder );
         }
         $finished_sql = "
-            SELECT g.id game_id, c.name category,
+            SELECT g.id game_id, c.id category,
                     SUM( ghteam.score ) score, g.target, ghpersonal.score personalscore
             FROM game g
             JOIN gamehistory ghpersonal ON ghpersonal.game_id = g.id AND ghpersonal.user_id = $userid
