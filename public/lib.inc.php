@@ -257,26 +257,23 @@ function getArrayValue( $array, $key, $default=false ){
 	}
 	return $default;
 }
-function sendIosNotification( $deviceToken, $message ){
-/*
-    $serviceurl = "http://app-426-1344938578.orchestra.io";
-    $pushpage = 'remotepush.php';
-    $token = $deviceToken;
-    $msg=urlencode( $message );
-    $url = "$serviceurl/$pushpage?msg=$msg&token=$token";
-    get_headers( $url );
-*/
+function sendIosNotification( $deviceToken, $message, $cert='ck.pem', $enqueue=true ){
+    if( $enqueue ){
+        $db = new database( getDbcredentials() );
+        $db->insertPush( $deviceToken, $message );
+        return true;
+    }
 	$passphrase = 'quiz24';
 	
 	$ctx = stream_context_create();
-	stream_context_set_option($ctx, 'ssl', 'local_cert', 'ck.pem');
+	stream_context_set_option($ctx, 'ssl', 'local_cert', $cert);
 	stream_context_set_option($ctx, 'ssl', 'passphrase', $passphrase);
 	
 	// Open a connection to the APNS server
 	$fp = stream_socket_client(
 		'ssl://gateway.sandbox.push.apple.com:2195', $err,
 		$errstr, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $ctx);
-    stream_set_blocking( $fp, 0 );
+    //stream_set_blocking( $fp, 0 );
 	
 	if (!$fp)
 		exit("Failed to connect: $err $errstr" . PHP_EOL);

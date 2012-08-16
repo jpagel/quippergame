@@ -37,7 +37,42 @@ class database{
 		$res = $this->pdo->query( $sql )->fetchAll( PDO::FETCH_COLUMN );
 		return array_values( $res );
 	}
+
+    public function fetchSingleValueSql( $sql ){
+        return array_shift( $this->fetchColumn( $sql ) );
+    }
+
+    public function fetchSingleValue( $table, $field, $keyvalue=null, $keyfield='id' ){
+        $sql = "SELECT $field FROM $table"; 
+        if( !null === $keyvalue ){
+            $sql .= " WHERE $keyfield = $keyvalue";
+        }
+        return array_shift( $this->fetchColumn( $sql ) );
+    }
+
+    public function log( $event ){
+        $sqlevent = $this->pdo->quote($event);
+        $sql = "INSERT INTO log VALUES ( null, $sqlevent )";
+        $this->pdo->exec( $sql );
+    }
     
+    public function insertPush( $device, $msg ){
+        $sqldevice = $this->pdo->quote( $device );
+        $sqlmsg = $this->pdo->quote( $msg );
+        $sql = "INSERT INTO pushqueue VALUES ($sqldevice, $sqlmsg, 0)" ;
+        return $this->pdo->exec( $sql );
+    }
+
+    public function getPushList(){
+        $sql = "UPDATE pushqueue SET sent = 1";
+        $this->pdo->exec( $sql );
+        $sql = "SELECT device_id, message FROM pushqueue WHERE sent";
+        $outlist = $this->fetchAll( $sql );
+        $sql = "DELETE FROM pushqueue WHERE sent";
+        $this->pdo->exec( $sql );
+        return $outlist;
+    }
+
     protected function payGameBonus( $gameid, $amount, $n=1, $lastuser=0 ){
         //pay coins to everyone in a particular game
         $coinsdelta = $amount;
