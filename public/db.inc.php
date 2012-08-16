@@ -577,4 +577,72 @@ class database{
         ";
         return $this->pdo->exec( $sql );
     }
+
+    public function buyJewels( $username, $jewels ){
+        $jewelpricelist = array(
+            1 => 1000,
+            2 => 1800,
+            3 => 4000
+        );
+        $n = 0;
+        if( $jewels > 2 ){
+            $n = 3;
+        }
+        elseif( in_array( $jewels, array( 1, 2 ) ) ){
+            $n = $jewels;
+        }
+        if( $n ){
+            $cost = $jewelpricelist[ $n ];
+            $userinfo = $this->fetch( "SELECT * FROM user WHERE username = " . $this->pdo->quote( $username ) );
+            $currentjewels = $userinfo[ 'jewels' ];
+            $currentcoins = $userinfo[ 'coins' ];
+            $currentjewelsbought = $userinfo[ 'jewelsbought' ];
+            if( $cost > $currentcoins ){
+                $s = ( 1 == 's' ) ? '' : 's';
+                return "user can't afford $n jewel$s";
+            }
+            else{
+                $newcoins = $currentcoins - $cost;
+                $newjewels = $currentjewels + $n;
+                $newjewelsbought = $currentjewelsbought + $n;
+                $sql = "UPDATE user SET jewels = $newjewels, jewelsbought = $newjewelsbought, lastactivity=NOW(), coins = $newcoins WHERE id = " . $userinfo[ 'id' ];
+                if( $this->pdo->exec( $sql ) ){
+                    //all well
+                    return false;
+                }
+                else{
+                    return "no jewels bought";
+                }
+            }
+        }
+        else{
+            return 'no jewels requested';
+        }
+    }
+
+    public function updateUserByUsername( $params ){
+        $username = $params[ 'username' ];
+        $setlist = array();
+        if( $coins = $params[ 'coins' ] ){
+            $setlist[] = "coins = $coins";
+        }
+        if( $jewels = $params[ 'jewels' ] ){
+            $setlist[] = "jewels = $jewels";
+        }
+        if( count($setlist) ){
+            $sql = "UPDATE user SET " . implode( ',', $setlist ) . " WHERE username = " . $this->pdo->quote( $params[ 'username' ] );
+            if( $this->pdo->exec( $sql ) ){
+                return false;
+            }
+            else{
+                //this could be legitimate if the submitted values are the same as the existing values
+                return false;
+            }
+        }
+        else{
+            //nothing to be done
+            return false;
+        }
+    }
+
 }
