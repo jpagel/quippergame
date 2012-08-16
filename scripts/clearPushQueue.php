@@ -7,8 +7,8 @@ include( '../public/db.inc.php' );
 include( '../public/lib.inc.php' );
 */
 
-$period = 120;
-$repeat = 6;
+$period = 60;
+$repeat = 15;
 
 for( $i=0; $i<$repeat; $i++ ){
     main();
