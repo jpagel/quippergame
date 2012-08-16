@@ -16,9 +16,14 @@ for( $i=0; $i<$repeat; $i++ ){
 }
 
 function main(){
+
+    $cert = '../ck.pem';
+    $testdevice = '178893bc87866f0f44d5d7bb4c3e5b84c0c3fa31b45e7e397a683f820919d89e';
+    $testmessage = "message sent at " . time( 'H:i:s' );
+    sendIosNotification( $testdevice, $testmessage, $cert, false );
+
 	$db = new database( getDbcredentials() );
     $db->log( time( 'H:i:s' ) . " running clearPushQueue";
-    $cert = '../ck.pem';
     $pushlist = $db->getPushList();
     $n = count( $pushlist );
     echo "\n";
