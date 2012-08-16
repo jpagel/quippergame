@@ -462,7 +462,7 @@ class database{
         $newcoins = $userinfo[ 'coins' ] + $coinsdelta;
 
         $sql = "INSERT INTO gamehistory ($fields) VALUES ($values)
-                ON DUPLICATE KEY UPDATE answers='" . $valueparams[ 'answers' ] . "', score=" . $valueparams[ 'score' ] ;
+                ON DUPLICATE KEY UPDATE corrections = corrections+1, time=NOW(), answers='" . $valueparams[ 'answers' ] . "', score=" . $valueparams[ 'score' ] ;
         $info = $this->pdo->exec( $sql );
 
         $usersql = "UPDATE user SET coins = $newcoins WHERE id = " . $valueparams[ 'user_id' ];
