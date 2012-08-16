@@ -25,7 +25,7 @@ function main( $cert ){
 */
 
 	$db = new database( getDbcredentials() );
-    $db->log( date( 'H:i:s' ) . " running clearPushQueue" );
+    //$db->log( date( 'H:i:s' ) . " running clearPushQueue" );
     $pushlist = $db->getPushList();
     $n = count( $pushlist );
     echo "\n";
