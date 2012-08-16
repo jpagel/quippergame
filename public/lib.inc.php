@@ -257,6 +257,20 @@ function getArrayValue( $array, $key, $default=false ){
 	}
 	return $default;
 }
+
+function convertSecondsToHms( $totalseconds ){
+    $completeMinutes = floor($totalseconds / 60);
+    $remainingSeconds = $totalseconds - 60 * $completeMinutes;
+    $completeHours = floor( $completeMinutes / 60 );
+    $remainingMinutes = $remainingMinutes = $completeMinutes - 60 * $completeHours;
+    $timeinfo = array(
+        'hours' => $completeHours,
+        'minutes' => $remainingMinutes,
+        'seconds' => $remainingSeconds
+    );
+    return $timeinfo;
+}
+
 function sendIosNotification( $deviceToken, $message, $cert='../ck.pem', $enqueue=true ){
     if( $enqueue ){
         $db = new database( getDbcredentials() );

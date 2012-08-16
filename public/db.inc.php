@@ -193,7 +193,7 @@ class database{
             $gamesession[ 'secondsremaining' ] = floor( $remainder );
         }
         $finished_sql = "
-            SELECT g.id game_id, c.id category,
+            SELECT g.id game_id, c.id category, UNIX_TIMESTAMP(g.finished) - UNIX_TIMESTAMP(g.start) gamelengthSeconds,
                     SUM( ghteam.score ) score, g.target, ghpersonal.score personalscore
             FROM game g
             JOIN gamehistory ghpersonal ON ghpersonal.game_id = g.id AND ghpersonal.user_id = $userid
