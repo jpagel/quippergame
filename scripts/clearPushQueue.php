@@ -17,6 +17,7 @@ for( $i=0; $i<$repeat; $i++ ){
 
 function main(){
 	$db = new database( getDbcredentials() );
+    $db->log( time( 'H:i:s' ) . " running clearPushQueue";
     $cert = '../ck.pem';
     $pushlist = $db->getPushList();
     $n = count( $pushlist );
