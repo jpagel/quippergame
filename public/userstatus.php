@@ -21,7 +21,10 @@ function getUserStatus( $params ){
     if( $userid ){
         list( $invitationlist, $gamesessionlist, $finishedlist ) = $db->getUserStatusScreen( $userid );
         foreach( $finishedlist as &$game ){
-            $game[ 'gamelength' ] = convertSecondsToHms( $game[ 'gamelengthSeconds' ] );
+            $lengthinfo = convertSecondsToHms( $game[ 'gamelengthSeconds' ] );
+            $game[ 'hours' ] = $lengthinfo[ 'hours' ];
+            $game[ 'minutes' ] = $lengthinfo[ 'minutes' ];
+            $game[ 'seconds' ] = $lengthinfo[ 'seconds' ];
             unset( $game[ 'gamelengthSeconds' ] );
         }
         return array(
