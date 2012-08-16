@@ -67,7 +67,7 @@ function answerSomeQuizzes( $db, $gpu, $msglist ){
             'answers' => generateRandomAnswers(5)
         );
         $info = updateGame( $params );
-        if( !$info[ 'error' ] ){
+        if( !getArrayValue($info, 'error') ){
             $count++;
         }
     }
