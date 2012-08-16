@@ -12,7 +12,7 @@ for( $i=0; $i<$repeat; $i++ ){
 
 function main(){
 	$db = new database( getDbcredentials() );
-    $cert = '../public/ck.pem';
+    $cert = '../ck.pem';
     $pushlist = $db->getPushList();
     $n = count( $pushlist );
     echo "\n";

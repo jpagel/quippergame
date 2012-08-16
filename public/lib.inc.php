@@ -257,7 +257,7 @@ function getArrayValue( $array, $key, $default=false ){
 	}
 	return $default;
 }
-function sendIosNotification( $deviceToken, $message, $cert='ck.pem', $enqueue=true ){
+function sendIosNotification( $deviceToken, $message, $cert='../ck.pem', $enqueue=true ){
     if( $enqueue ){
         $db = new database( getDbcredentials() );
         $db->insertPush( $deviceToken, $message );
