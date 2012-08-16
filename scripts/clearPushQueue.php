@@ -1,6 +1,11 @@
 <?php
+define('CRON_PATH', dirname(__DIR__));
+include( CRON_PATH . '/public/db.inc.php' );
+include( CRON_PATH . '/public/lib.inc.php' );
+/*
 include( '../public/db.inc.php' );
 include( '../public/lib.inc.php' );
+*/
 
 $period = 120;
 $repeat = 6;
