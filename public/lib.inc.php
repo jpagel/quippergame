@@ -270,14 +270,15 @@ function inviteSingle( $gameid, $from, $to, $friend, $db=false ){
     $error = false;
     $displayname = $db->getDisplayNameFromUsername( $from );
     if( $deviceid ){
-        //send push notification
-        $msg = "$displayname has sent you a new challenge";
-        sendIosNotification( $deviceid, $msg );
         //add to invite table
         if( $db->insertInvitation( $gameid, $from, $to, $friend ) ){
             //ok
+            //send push notification
+            $msg = "$displayname has sent you a new challenge";
+            sendIosNotification( $deviceid, $msg );
         }
         else{
+            //most likely this invitation has been sent already
             $error = $db->getError();
         }
     }
@@ -286,6 +287,7 @@ function inviteSingle( $gameid, $from, $to, $friend, $db=false ){
     }
     return $error;
 }
+
 function enquote( $value ){
 	if( is_numeric( $value ) ){
 		return $value;
