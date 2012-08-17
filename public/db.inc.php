@@ -362,16 +362,16 @@ class database{
             array( $catandlevel, 12 ),
             array( $catonly, 12 )
         );
+        if( $fromid ){
+            $excludelist[] = $id;
+        }
         foreach( $criterialist as $criteria ){
             $limit = $max - count( $idlist );
             $whereandlist = $criteria[ 0 ];
             $hourslimit = $criteria[ 1 ];
-            if( $fromid ){
-                $excludelist[] = $fromid;
-            }
-            else{
-                $excludelist = array_merge( $excludelist, $idlist );
-            }
+            
+            $excludelist = array_merge( $excludelist, $idlist );
+            
             $sql = $this->prepareTeammateSql( $gameid, $whereandlist, $hourslimit, $limit, $excludelist );
             if( $debug ){
                 echo $sql; echo '<hr />';
@@ -662,5 +662,11 @@ class database{
             return false;
         }
     }
-
+    
+    public function insertKpi( $key, $content ){
+        $sqlkey = $this->pdo->quote( $key );
+        $sqlcontent = $this->pdo->quote( $content );
+        $sql = "INSERT INTO kpi VALUES ( $sqlkey, $sqlcontent )";
+        return $this->pdo->exec( $sql );
+    }
 }
