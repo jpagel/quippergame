@@ -3,8 +3,8 @@ include('db.inc.php');
 include('lib.inc.php');
 
 $tablesForChop = array(
-    'user', 
-    'user_device', 
+    //'user', 
+    //'user_device', 
     'invitation', 
     'game', 
     'gamesession', 
