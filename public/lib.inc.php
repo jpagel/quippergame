@@ -179,7 +179,7 @@ function createNewGame( $params, $debug=false ){
         else{
             //no invitees ... choose 10 random invitees
             $fromid = $creatorid;
-            $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, false );
+            $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid );
             $toisidsalready = true;
             $friends = 0;
             if( $debug ){
@@ -198,6 +198,15 @@ function createNewGame( $params, $debug=false ){
                 }
                 if( $toid ){
                     if( $error = inviteSingle( $gameid, $from, $toid, $friends, $db ) ){
+                        $errorlist[] = $error;
+                    }
+                }
+            }
+            if( $diff = MAX_PLAYERS_PER_GAME - count( $tolist ) ){
+                //invite $diff strangers to make up the numbers
+                $tolistextra = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, $diff );
+                foreach( $tolistextra as $toid ){
+                    if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
                         $errorlist[] = $error;
                     }
                 }

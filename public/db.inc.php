@@ -343,9 +343,8 @@ class database{
                 LIMIT $limit
         ";
     }
-    public function chooseTeammates( $gameid, $categoryid, $level, $fromid=false, $debug=false ){
+    public function chooseTeammates( $gameid, $categoryid, $level, $fromid=false, $max=MAX_PLAYERS_PER_GAME, $excludelist=array(), $debug=false ){
         //find recently active games of same category and level
-        $max = MAX_PLAYERS_PER_GAME;
         $limit = $max;
         $idlist = array();
         $foundusers = 0;
@@ -368,10 +367,10 @@ class database{
             $whereandlist = $criteria[ 0 ];
             $hourslimit = $criteria[ 1 ];
             if( $fromid ){
-                $excludelist = array_merge( array( $fromid ), $idlist );
+                $excludelist[] = $fromid;
             }
             else{
-                $excludelist = $idlist;
+                $excludelist = array_merge( $excludelist, $idlist );
             }
             $sql = $this->prepareTeammateSql( $gameid, $whereandlist, $hourslimit, $limit, $excludelist );
             if( $debug ){
@@ -422,15 +421,19 @@ class database{
         return $userinfo[ 'username' ];
     }
 
-    public function insertInvitation( $gameid, $from, $to, $friend ){
+    public function insertInvitation( $gameid, $from, $to, $friend=true ){
         $fromid = $this->getUserIdFromUserName( $from );
+/*
         if( $friend ){
-            $toid = $this->getUserIdFromUserName( $to );
+            //$toid = $this->getUserIdFromUserName( $to );
+            $toid = $to;
         }
         else{
             //if friend not chosen by name, then $to is user.id not user.username
             $toid = $to;
         }
+*/
+        $toid = $to;
         $sql = "INSERT INTO invitation (game_id, from_id, to_id, friend ) VALUES ($gameid, $fromid, $toid, $friend)";
         if( $status = $this->pdo->exec( $sql ) ){
             //stats
@@ -448,6 +451,7 @@ class database{
             return false;
         }
     }
+
     public function insertGameHistory( $params ){
         $valueparams = array(
             'game_id' => $params[ 'gameid' ],
@@ -504,7 +508,7 @@ class database{
             $userid = $params[ 'creator_id' ];
             $sesssql = "INSERT INTO gamesession VALUES ( $gameid, $userid )";
             $this->pdo->exec( $sesssql ); 
-            $this->updateLastActivity( $userid );
+            $this->updateLastActivity( $params[ 'creatorid' ] );
             return $gameid;
         }
         else{
