@@ -6,6 +6,8 @@ define( 'COINS_BONUS_THIRD', 100 );
 define( 'COINS_BONUS_NOFPLAYERS', 100 );
 define( 'MAX_PLAYERS_PER_GAME', 10 );
 define( 'HISTORICAL_GAME_LIMIT', 3 );
+define( 'LOGIN_RESET_TIME_HOURS', 6 );
+define( 'PERIOD_GAME_CREATION_LIMIT', 4 );
 
 date_default_timezone_set('Europe/London');
 
@@ -137,8 +139,33 @@ function register($params){
 	}
 }
 
+function userIdIsNotAllowedToCreateGame( $db, $userid ){
+    $sql = "SELECT (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(lastactivity)) FROM user WHERE id = $userid";
+    $lastactivityago = $db->fetchSingleValueSql( $sql );    //seconds
+    $resettimeSeconds = LOGIN_RESET_TIME_HOURS*3600;
+    //is it more than 6 hours ago?
+    if( ( $resettimeSeconds ) < $lastactivityago ){
+        //OK!
+        return false;
+    }
+    $n = $db->countGamesCreatedSince( $userid, 24 );
+    if( 4 > $n ){
+        //OK!
+        return false;
+    }
+    else{
+        //$waittimeinfo = convertSecondsToHms( $waittimeSeconds );
+        return 'Game creation limit reached.';
+    }
+}
+
 function createNewGame( $params, $debug=false ){
 	$db = new database( getDbcredentials() );
+    $creatorid = $db->getUserIdFromUserName( $params[ "user" ] );
+    if( $error = userIdIsNotAllowedToCreateGame( $db, $creatorid ) ){
+        return array( 'error' => $error );
+    }
+    $params[ 'creatorid' ] = $creatorid;
     $gameid = $db->startGame( $params );
     $tolist = array();
     if( $gameid ){
@@ -151,7 +178,7 @@ function createNewGame( $params, $debug=false ){
         }
         else{
             //no invitees ... choose 10 random invitees
-            $fromid = $db->getUserIdFromUserName( $params[ "user" ] );
+            $fromid = $creatorid;
             $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, false );
             $toisidsalready = true;
             $friends = 0;

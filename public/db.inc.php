@@ -210,6 +210,11 @@ class database{
         );
     }
 
+    public function countGamesCreatedSince( $userid, $timelimitHours ){
+        $sql = "SELECT COUNT(id) FROM game WHERE creator_id = $userid AND (start + INTERVAL $timelimitHours HOUR) > NOW()";
+        return $this->fetchSingleValueSql( $sql );
+    }
+
     public function usernameExists( $username ){
         return $this->valueExists( 'user', 'username', $username );
     }
@@ -467,6 +472,7 @@ class database{
 
         $usersql = "UPDATE user SET coins = $newcoins WHERE id = " . $valueparams[ 'user_id' ];
         $this->pdo->exec( $usersql );
+        $this->updateLastActivity( $valueparams[ 'user_id' ] );
         return 1;
     }
 
@@ -487,22 +493,30 @@ class database{
             'category_id' => $params['category'],
             'questionids' => $params[ 'quids' ],
             'target' => $params[ 'target' ],
-            'open' => null
+            'open' => null,
+            'creator_id' => $params[ 'creatorid' ]
         );
 		list( $fields, $values ) = $this->assembleInsertFieldsAndValues( $valueparams );
         $sql = "INSERT INTO game ( $fields ) VALUES ( $values )";
         $this->pdo->exec( $sql );
         $gameid = $this->pdo->lastInsertId();
         if( $gameid ){
-            $userid = $this->getUserIdFromUserName( $params[ 'user' ] );
+            $userid = $params[ 'creator_id' ];
             $sesssql = "INSERT INTO gamesession VALUES ( $gameid, $userid )";
             $this->pdo->exec( $sesssql ); 
+            $this->updateLastActivity( $userid );
             return $gameid;
         }
         else{
             $this->handleError();
         }
     }
+
+    public function updateLastActivity( $userid ){
+        $sql = "UPDATE user SET lastActivity = NOW() WHERE id = $userid";
+        return $this->pdo->exec( $sql );
+    }
+
 	public function insertUser( $params ){
 		$allowedFieldList = array( 'username', 'displayname' );
 		$valueparams = array(
