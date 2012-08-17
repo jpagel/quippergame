@@ -164,7 +164,8 @@ function createNewGame( $params, $debug=false ){
     $creatorid = $db->getUserIdFromUserName( $params[ "user" ] );
     $fromid = $creatorid;
     if( $error = userIdIsNotAllowedToCreateGame( $db, $creatorid ) ){
-        return array( 'error' => $error );
+        //jfp @todo put this back for production
+        //return array( 'error' => $error );
     }
     $params[ 'creatorid' ] = $creatorid;
     $gameid = $db->startGame( $params );
