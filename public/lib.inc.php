@@ -162,6 +162,7 @@ function userIdIsNotAllowedToCreateGame( $db, $userid ){
 function createNewGame( $params, $debug=false ){
 	$db = new database( getDbcredentials() );
     $creatorid = $db->getUserIdFromUserName( $params[ "user" ] );
+    $fromid = $creatorid;
     if( $error = userIdIsNotAllowedToCreateGame( $db, $creatorid ) ){
         return array( 'error' => $error );
     }
@@ -178,7 +179,6 @@ function createNewGame( $params, $debug=false ){
         }
         else{
             //no invitees ... choose 10 random invitees
-            $fromid = $creatorid;
             $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid );
             $toisidsalready = true;
             $friends = 0;
