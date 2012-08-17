@@ -208,8 +208,10 @@ function createNewGame( $params, $debug=false ){
                 //invite $diff strangers to make up the numbers
                 $tolistextra = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, $diff, $tolist );
                 foreach( $tolistextra as $toid ){
-                    if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
-                        $errorlist[] = $error;
+                    if( !in_array( $toid, $tolist ) ){
+                        if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
+                            $errorlist[] = $error;
+                        }
                     }
                 }
             }
