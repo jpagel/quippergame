@@ -505,7 +505,7 @@ class database{
         $this->pdo->exec( $sql );
         $gameid = $this->pdo->lastInsertId();
         if( $gameid ){
-            $userid = $params[ 'creator_id' ];
+            $userid = getArrayValue( $params, 'creatorid' );
             $sesssql = "INSERT INTO gamesession VALUES ( $gameid, $userid )";
             $this->pdo->exec( $sesssql ); 
             $this->updateLastActivity( $params[ 'creatorid' ] );
