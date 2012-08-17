@@ -1,4 +1,5 @@
 <?php
+exit;
 include('lib.inc.php');
 var_dump(grid2mail());
 

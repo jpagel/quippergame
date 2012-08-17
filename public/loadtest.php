@@ -1,4 +1,5 @@
 <?php
+exit;
 require( 'lib.inc.php' );
 require( 'db.inc.php' );
 

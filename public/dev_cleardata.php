@@ -1,4 +1,5 @@
 <?php
+exit;
 include('db.inc.php');
 include('lib.inc.php');
 
