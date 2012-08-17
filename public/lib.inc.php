@@ -161,6 +161,7 @@ function userIdIsNotAllowedToCreateGame( $db, $userid ){
 
 function createNewGame( $params, $debug=false ){
 	$db = new database( getDbcredentials() );
+    $db->log( "creating new game" );
     $creatorid = $db->getUserIdFromUserName( $params[ "user" ] );
     $fromid = $creatorid;
     if( $error = userIdIsNotAllowedToCreateGame( $db, $creatorid ) ){
@@ -262,6 +263,7 @@ function inviteSingle( $gameid, $from, $to, $friend, $db=false ){
     if( !$db ){
 	    $db = new database( getDbcredentials() );
     }
+    $db->log( "Inviting $to to game $gameid from $from" );
     $deviceid = $db->getDeviceIdForUserId( $to );
     $error = false;
     $displayname = $db->getDisplayNameFromUsername( $from );
