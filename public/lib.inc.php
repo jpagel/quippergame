@@ -279,7 +279,9 @@ function inviteSingle( $gameid, $from, $to, $friend, $db=false ){
         }
         else{
             //most likely this invitation has been sent already
-            $error = $db->getError();
+            //just be silent
+            //$error = $db->getError();
+            $error = false;
         }
     }
     else{

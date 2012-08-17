@@ -3,6 +3,7 @@ define('CRON_PATH', dirname(__DIR__));
 include( CRON_PATH . '/public/db.inc.php' );
 include( CRON_PATH . '/public/lib.inc.php' );
 
+//echo main();
 main();
 
 function main(){
@@ -28,8 +29,8 @@ function generateStats( $startdate ){
         'facebook connect number' => array( 'countFacebookIds', array( $db ) ),
         'correction rate per user per difficulty per category' => array('getCorrectionrateByLevelByCat', array( $db, $timeclause ) ),
         'average coins earned per user per game per difficulty' => array('getCoinsEarnedPerPlayerPerGameByLevel', array($db)),
-        'cumulative coins earned per user' => array('getCumulativeCoinsPerUser', array($db) ),
-        'cumulative jewels purchased per user' => array( 'getCumulativeJewelsPerUser', array( $db ) ),
+        'cumulative coins earned per user' => array('getCumulativeCoinsPerUser', array($db, $timeclause ) ),
+        'cumulative jewels purchased per user' => array( 'getCumulativeJewelsPerUser', array( $db, $timeclause ) ),
         //'number of purchases per premium function' => array(),
         'average hours taken per game' => array('getAverageHoursPerGame', array( $db, $timeclause ) ),
         'number of games initiated per difficulty per category' => array( 'getGamesStartedByLevel', array( $db, $timeclause ) ),
@@ -55,13 +56,31 @@ function outformat( $title, $data ){
     return "<div>\n\t<h3>$title</h3>\n\t<p>$data</p>\n</div>";
 }
 
-function getCumulativeJewelsPerUser( $db ){
+function wrong_getCumulativeJewelsPerUser( $db ){
     $sql = "SELECT AVG(jewelsbought) FROM USER";
     return $db->fetchSingleValueSql( $sql );
 }
-function wrong_getCumulativeJewelsPerUser($db){
-    $sql = "SELECT SUM(jewels) FROM user)/(select count(distinct user_id) from gamehistory";
-    return $db->fetchSingleValueSql($sql);
+function getActiveUserIdListForTimeclause( $db, $timeclause ){
+    $sql = "
+            SELECT GROUP_CONCAT( DISTINCT u.id) 
+            FROM user u
+            JOIN gamehistory gh ON gh.user_id = u.id
+            JOIN game g ON g.id = gh.game_id
+            WHERE $timeclause
+    ";
+    $activeuserlist = array_shift( $db->fetchColumn( $sql ) );
+    return $activeuserlist;
+}
+
+function getCumulativeJewelsPerUser($db, $timeclause){
+    $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
+    $jewelsql = "SELECT AVG(jewelsbought) FROM user WHERE id IN ($activeuserlist)";
+    return $db->fetchSingleValueSql($jewelsql);
+}
+function getCumulativeCoinsPerUser($db, $timeclause){
+    $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
+    //$sql = "SELECT AVG( coinsearned ) FROM user WHERE id IN ($activeuserlist)";
+    //return $db->fetchSingleValueSql($sql);
 }
 
 function getTotalGamesStarted( $db, $timeclause ){
@@ -125,10 +144,6 @@ function getCoinsEarnedPerPlayerPerGameByLevel($db, $timeclause=false){
         $sql .= " WHERE " . implode( ' AND ', $whereandlist );
     }
     return rstFormat( $db->fetchAll( $sql ) );
-}
-function getCumulativeCoinsPerUser($db){
-    $sql = "SELECT ( SELECT SUM(coinsearned) FROM gamestat) / (SELECT COUNT(DISTINCT user_id) FROM gamehistory)";
-    return $db->fetchSingleValueSql($sql);
 }
 function getAverageHoursPerGame($db, $timeclause){
     $field = "AVG(UNIX_TIMESTAMP(finished) - UNIX_TIMESTAMP(start))/3600";

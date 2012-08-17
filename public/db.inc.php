@@ -44,7 +44,7 @@ class database{
 
     public function fetchSingleValue( $table, $field, $keyvalue=null, $keyfield='id' ){
         $sql = "SELECT $field FROM $table"; 
-        if( !null === $keyvalue ){
+        if( null !== $keyvalue ){
             $sql .= " WHERE $keyfield = $keyvalue";
         }
         return array_shift( $this->fetchColumn( $sql ) );
@@ -79,10 +79,10 @@ class database{
         $sql = "SELECT user_id FROM gamesession WHERE game_id = $gameid";
         $userids = implode( ',',$this->fetchColumn( $sql ) );
         $bonusqlist = array();
-        $bonusqlist[] = "UPDATE user SET coins = coins + $coinsdelta WHERE id IN ($userids)";
+        $bonusqlist[] = "UPDATE user SET coinsearned = coinsearned + $coinsdelta, coins = coins + $coinsdelta WHERE id IN ($userids)";
         if( 2 == $n && $lastuser ){
             //lastuser needs the bonus again
-            $bonusqlist[] = "UPDATE user SET coins = coins + $coinsdelta WHERE id = $lastuser";
+            $bonusqlist[] = "UPDATE user SET coinsearned = coinsearned + $coinsdelta, coins = coins + $coinsdelta WHERE id = $lastuser";
         }
         foreach( $bonusqlist as $bonusql ){
             $info = $this->pdo->exec($bonusql);
@@ -301,7 +301,7 @@ class database{
         $errorlist = array();
         foreach( $winnerlist as $userid ){
             $coins = array_shift( $prizelist );
-            $sql = "UPDATE user SET coins";
+            //$sql = "UPDATE user SET coins";
             if( !$this->awardCoinsToUser( $userid, $coins ) ){
                 $errorlist[] = "failed to award coins to userid $userid";
             }
@@ -316,7 +316,7 @@ class database{
         $userinfo = $this->fetch( "SELECT * FROM user WHERE id = $userid" );
         $currentCoins = getArrayValue( $userinfo, 'coins' );
         $newCoins = $currentCoins + $coins;
-        $sql = "UPDATE user SET coins = $newCoins WHERE id = $userid";
+        $sql = "UPDATE user SET coinsearned = coinsearned + $coins, coins = $newCoins WHERE id = $userid";
         return( $this->pdo->exec( $sql ) );
     }
 
@@ -474,7 +474,7 @@ class database{
                 ON DUPLICATE KEY UPDATE corrections = corrections+1, time=NOW(), answers='" . $valueparams[ 'answers' ] . "', score=" . $valueparams[ 'score' ] ;
         $info = $this->pdo->exec( $sql );
 
-        $usersql = "UPDATE user SET coins = $newcoins WHERE id = " . $valueparams[ 'user_id' ];
+        $usersql = "UPDATE user SET coinsearned = coinsearned + $coinsdelta, coins = $newcoins WHERE id = " . $valueparams[ 'user_id' ];
         $this->pdo->exec( $usersql );
         $this->updateLastActivity( $valueparams[ 'user_id' ] );
         return 1;
@@ -661,6 +661,11 @@ class database{
             //nothing to be done
             return false;
         }
+    }
+
+    public function getKpiList(){
+        $sql = "SELECT targetdate FROM kpi ORDER BY targetdate DESC";
+        return $this->fetchColumn( $sql );
     }
     
     public function insertKpi( $key, $content ){
