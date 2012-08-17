@@ -325,7 +325,7 @@ class database{
                         'gh.user_id',
                         "MAX( gh.`time` ) latestActive"
         );
-        if( $excludelist ){
+        if( COUNT($excludelist) ){
             $whereandlist[] = "gh.user_id NOT IN (" . implode( ',', $excludelist ) . ")";
         }
         $whereclause = '';
@@ -363,7 +363,7 @@ class database{
             array( $catonly, 12 )
         );
         if( $fromid ){
-            $excludelist[] = $id;
+            $excludelist[] = $fromid;
         }
         foreach( $criterialist as $criteria ){
             $limit = $max - count( $idlist );
