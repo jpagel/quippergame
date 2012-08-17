@@ -9,8 +9,8 @@ include( '../public/db.inc.php' );
 include( '../public/lib.inc.php' );
 */
 
-$period = 30;   //seconds
-$repeat = 30;   //so we run every 30 seconds 30 times
+$period = 45;   //seconds
+$repeat = 20;   //so we run every 45 seconds 20 times
 
 for( $i=0; $i<$repeat; $i++ ){
     main( $cert );
