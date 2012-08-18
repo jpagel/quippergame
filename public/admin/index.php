@@ -40,7 +40,7 @@ function authenticated( $req ){
         'mariko' => 'kleenexswordfish'
     );
     foreach( $userlist as $username=>$password ){
-        if( $req[ 'username' ] == $username && $req[ 'password' ] == $password ){
+        if( getArrayValue( $req, 'username' ) == $username && getArrayValue( $req, 'password' ) == $password ){
             $_SESSION[ 'authenticated' ] = true;
             return true;
         }
