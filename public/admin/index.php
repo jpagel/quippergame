@@ -5,8 +5,51 @@ session_start();
 
 $req = $_GET;
 
-echo mainn( $req );
-//echo test( $req );
+if( authenticated( $_POST ) ){
+    echo mainn( $req, $_POST );
+}
+else{
+    echo loginform( $_POST );
+}
+
+function loginform( $post ){
+    $username = getArrayValue( $post, 'username' );
+    $password = getArrayValue( $post, 'password' );
+    return <<<EOF
+    <div>
+        <form action="" method="POST">
+        <div>
+            <span>username</span>
+            <span><input type="text" name="username" value="$username" /></span>
+        </div>
+        <div>
+            <span>password</span>
+            <span><input type="password" name="password" value="$password" /></span>
+        </div>
+        <div>
+            <span style="width:150px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            <span><input type="submit" value="login" /></span>
+        </div>
+        </form>
+    </div>
+EOF;
+}
+
+function authenticated( $req ){
+    $userlist = array(
+        'mariko' => 'kleenexswordfish'
+    );
+    foreach( $userlist as $username=>$password ){
+        if( $req[ 'username' ] == $username && $req[ 'password' ] == $password ){
+            $_SESSION[ 'authenticated' ] = true;
+            return true;
+        }
+        elseif( getArrayValue( $_SESSION, 'authenticated' ) ){
+            return true;
+        }
+    }
+    return false;
+}
 
 function test( $req ){
     include( '../../scripts/generatekpi.php' );
@@ -16,17 +59,17 @@ function test( $req ){
     echo "</pre>";
 }
 
-function mainn( $req ){
-var_dump($_SESSION);
-$timenow = date( 'H:i:s' );
-if( $sessiontime = getArrayValue( $_SESSION, 'time' ) ){
-    echo "Session time is $sessiontime";
-}
-else{
-    echo $timenow;
-    $_SESSION[ 'time' ] = $timenow;
-}
-return;
+function mainn( $req, $post ){
+    if( getArrayValue( $post, 'logout' ) ){
+        session_destroy();
+        return loginform( $req );
+    }
+    echo '
+        <form action="" method="POST">
+            <input type="hidden" name="logout" value="1" />
+            <input type="submit" value="logout" />
+        </form>
+    ';
 	$db = new database( getDbcredentials() );
     $availabledates = $db->getKpiList();
     if( $target = getArrayValue( $req, 'target' ) ){
