@@ -2,12 +2,12 @@
 define('CRON_PATH', dirname(__DIR__));
 include( CRON_PATH . '/public/db.inc.php' );
 include( CRON_PATH . '/public/lib.inc.php' );
-
-//echo main();
 main();
 
+//echo main();
+
 function main(){
-    $startdate = date( 'Y-m-d', time() - (1 * 24 * 3600) );
+    $startdate = date( 'Y-m-d', time() - (2 * 24 * 3600) );
     echo $startdate;
     $stats = generateStats( $startdate );
 	$db = new database( getDbcredentials() );
@@ -19,26 +19,69 @@ function generateStats( $startdate ){
     $mysqlend = "$startdate 23:50:59";
     $timeclause = "g.start >= '$mysqlstart' AND g.start <= '$mysqlend'";
     //echo $timeclause;
-	$db = new database( getDbcredentials() );
-    $tasklist = array(
-        'total games started' => array( 'getTotalGamesStarted', array( $db, $timeclause ) ),
-        'friends invited per game' => array( 'getFriendsPerGame', array($db, $timeclause) ),
-        'average acceptance per game' => array( 'getAvgAcceptance', array($db, false, $timeclause) ),
-        'average acceptance from friends per game' => array('getAvgAcceptance', array($db, 'friends', $timeclause ) ),
-        'average acceptance from strangers per game' => array('getAvgAcceptance', array($db, 'strangers', $timeclause ) ),
-        'facebook connect number' => array( 'countFacebookIds', array( $db ) ),
-        'correction rate per user per difficulty per category' => array('getCorrectionrateByLevelByCat', array( $db, $timeclause ) ),
-        'average coins earned per user per game per difficulty' => array('getCoinsEarnedPerPlayerPerGameByLevel', array($db)),
-        'cumulative coins earned per user' => array('getCumulativeCoinsPerUser', array($db, $timeclause ) ),
-        'cumulative jewels purchased per user' => array( 'getCumulativeJewelsPerUser', array( $db, $timeclause ) ),
-        //'number of purchases per premium function' => array(),
-        'average hours taken per game' => array('getAverageHoursPerGame', array( $db, $timeclause ) ),
-        'number of games initiated per difficulty per category' => array( 'getGamesStartedByLevel', array( $db, $timeclause ) ),
-        'number of games which achieved the target per difficulty per category' => array('getGamesWhichAchievedTarget', array($db, $timeclause ) )
-/*
-*/
+    $categorylist = array(
+         1 => 'General Knowledge',
+         2 => 'Entertainment',
+         3 => 'Geography',
+         4 => 'Arts',
+         5 => 'Sports & Health',
+         6 => 'Math & Science',
+         7 => 'Lifestyle',
+         8 => 'History & Religion',
+         9 => 'Languages'
     );
-    $output = outformat( "Quipper Game Stats", "date,$startdate" );
+    
+	$db = new database( getDbcredentials() );
+    $tasklist = array();
+    $tasklist[ 'total games started' ] = array( 'getTotalGamesStarted', array( $db, $timeclause ) );
+    $tasklist[ 'friends invited per game' ] = array( 'getFriendsPerGame', array($db, $timeclause) );
+    $tasklist[ 'average acceptance per game' ] = array( 'getAvgAcceptance', array($db, false, $timeclause) );
+    $tasklist[ 'average acceptance from friends per game' ] = array('getAvgAcceptance', array($db, 'friends', $timeclause ) );
+    $tasklist[ 'average acceptance from strangers per game' ] = array('getAvgAcceptance', array($db, 'strangers', $timeclause ) );
+    $tasklist[ 'facebook connect number' ] = array( 'countFacebookIds', array( $db, $timeclause ) );
+
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "correction rate per user level 1 $name" ] = array('getCorrectionrateByLevelByCat', array( $db, $timeclause, 1, $catid ) );
+    }
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "correction rate per user level 2 $name" ] = array("getCorrectionrateByLevelByCat", array( $db, $timeclause, 2, $catid ) );
+    }
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "correction rate per user level 3 $name" ] = array("getCorrectionrateByLevelByCat", array( $db, $timeclause, 3, $catid ) );
+    }
+
+    $tasklist[ 'average coins earned per user per game level 1' ] = array('getCoinsEarnedPerPlayerPerGameByLevel', array($db, $timeclause, 1));
+    $tasklist[ 'average coins earned per user per game level 2' ] = array('getCoinsEarnedPerPlayerPerGameByLevel', array($db, $timeclause, 2));
+    $tasklist[ 'average coins earned per user per game level 3' ] = array('getCoinsEarnedPerPlayerPerGameByLevel', array($db, $timeclause, 3));
+
+    $tasklist[ 'cumulative coins earned per user' ] = array('getCumulativeCoinsPerUser', array($db, $timeclause ) );
+    $tasklist[ 'cumulative jewels purchased per user' ] = array( 'getCumulativeJewelsPerUser', array( $db, $timeclause ) );
+        //    $tasklist[ 'number of purchases per premium function' ] = array();
+    $tasklist[ 'average hours taken per game' ] = array('getAverageHoursPerGame', array( $db, $timeclause ) );
+
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "number of games initiated level 1 $name" ] = array( "getGamesStartedByLevel", array( $db, $timeclause, 1, $catid ) );
+    }
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "number of games initiated level 2 $name" ] = array( "getGamesStartedByLevel", array( $db, $timeclause, 2, $catid ) );
+    }
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "number of games initiated level 3 $name" ] = array( "getGamesStartedByLevel", array( $db, $timeclause, 3, $catid ) );
+    }
+
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "number of games which achieved the target level 1 $name" ] = array("getGamesWhichAchievedTarget", array($db, $timeclause, 1, $catid ) );
+    }
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "number of games which achieved the target level 2 $name" ] = array("getGamesWhichAchievedTarget", array($db, $timeclause, 2, $catid ) );
+    }
+    foreach( $categorylist as $catid=>$name ){
+        $tasklist[ "number of games which achieved the target level 3 $name" ] = array("getGamesWhichAchievedTarget", array($db, $timeclause, 3, $catid ) );
+    }
+    
+    //$output = outformat( "Quipper Game Stats", "date,$startdate" );
+    $headerlist = array( 'date' );
+    $valuelist = array( $startdate );
     foreach( $tasklist as $title=>$function ){
         if( $function ){
             $data = call_user_func_array( $function[0], $function[1] );
@@ -46,8 +89,15 @@ function generateStats( $startdate ){
         else{
             $data = 'no function';
         }
-        $output .= outformat( $title, $data );
+        //$output .= outformat( $title, $data );
+        $headerlist[] = $title;
+        $valuelist[] = $data;
     }
+
+    $headerrow = implode( ',' , $headerlist );
+    $valuerow = implode( ',', $valuelist );
+    $output .= $headerrow . "\n";
+    $output .= $valuerow ;
     return $output;
 }
 
@@ -75,12 +125,18 @@ function getActiveUserIdListForTimeclause( $db, $timeclause ){
 function getCumulativeJewelsPerUser($db, $timeclause){
     $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
     $jewelsql = "SELECT AVG(jewelsbought) FROM user WHERE id IN ($activeuserlist)";
-    return $db->fetchSingleValueSql($jewelsql);
+    if( $n = $db->fetchSingleValueSql($jewelsql) ){
+        return $n;
+    }
+    return 0;
 }
 function getCumulativeCoinsPerUser($db, $timeclause){
     $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
-    //$sql = "SELECT AVG( coinsearned ) FROM user WHERE id IN ($activeuserlist)";
-    //return $db->fetchSingleValueSql($sql);
+    $sql = "SELECT AVG( coinsearned ) FROM user WHERE id IN ($activeuserlist)";
+    if( $n = $db->fetchSingleValueSql($sql) ){
+        return $n;
+    }
+    return 0;
 }
 
 function getTotalGamesStarted( $db, $timeclause ){
@@ -111,16 +167,28 @@ function getAvgAcceptance($db, $subcat=false, $timeclause=false){
     ";
     return $db->fetchSingleValueSql($sql);
 }
-function countFacebookIds($db){
-    return $db->fetchSingleValueSql( "SELECT COUNT(id) FROM user WHERE username REGEXP('^[0-9]*$')" );
+function countFacebookIds($db , $timeclause){
+    $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
+    return $db->fetchSingleValueSql( "SELECT COUNT(id) FROM user WHERE username REGEXP('^[0-9]*$') AND id IN ($activeuserlist)" );
 }
-function getCorrectionrateByLevelByCat( $db , $timeclause=false ){
-    $sql = "SELECT g.level, c.name category, SUM(gh.corrections)/COUNT(DISTINCT user_id) 'corrections per user' FROM gamehistory gh JOIN game g ON g.id = gh.game_id JOIN category c ON c.id = g.category_id "; 
+function getCorrectionrateByLevelByCat( $db , $timeclause=false, $level=false, $categoryid=false ){
+    $sql = "SELECT SUM(gh.corrections)/COUNT(DISTINCT user_id) 'corrections per user' FROM gamehistory gh JOIN game g ON g.id = gh.game_id JOIN category c ON c.id = g.category_id "; 
+    $whereandlist = array();
     if( $timeclause ){
-        $sql .= "WHERE $timeclause";
+        $whereandlist[] = $timeclause;
+        //$sql .= "WHERE $timeclause";
+    }
+    if( $level ){
+        $whereandlist[] = "g.level = $level";
+    }
+    if( $categoryid ){
+        $whereandlist[] = "g.category_id = $categoryid";
+    }
+    if( $whereandlist ){
+        $sql .= " WHERE " . implode( ' AND ', $whereandlist );
     }
     $sql .= " GROUP BY g.level, g.category_id";
-    return rstFormat( $db->fetchAll( $sql ) );
+    return $db->fetchSingleValueSql( $sql );
 }
 function rstFormat( $rst ){
     $outlist = array();
@@ -134,16 +202,38 @@ function rstFormat( $rst ){
     }
     return 'no data';
 }
-function getCoinsEarnedPerPlayerPerGameByLevel($db, $timeclause=false){
+function oldrstFormat( $rst ){
+    $outlist = array();
+    if( count($rst) ){
+	    $headinglist = array_keys( $rst[0] );
+	    $outlist[] = implode( ',', $headinglist );
+	    foreach( $rst as $row ){
+	        $outlist[] = implode( ',', array_values( $row ) );
+	    }
+	    return implode( "\n", $outlist );
+    }
+    return 'no data';
+}
+function getCoinsEarnedPerPlayerPerGameByLevel($db, $timeclause=false, $level=false, $categoryid=false ){
     $whereandlist = array();
     if( $timeclause ){
         $whereandlist[] = $timeclause;
     }
-    $sql = "SELECT g.level, COUNT(gst.game_id) 'no. of games', SUM(coinsearned)/SUM(strangersjoined+friendsjoined) 'coins per user' FROM gamestat gst JOIN game g ON g.id = gst.game_id GROUP BY g.level";
+    if( $level ){
+        $whereandlist[] = "g.level = $level";
+    }
+    if( $categoryid ){
+        $whereandlist[] = "g.category_id = $categoryid";
+    }
+    $sql = "SELECT SUM(coinsearned)/SUM(strangersjoined+friendsjoined) 'coins per user' FROM gamestat gst JOIN game g ON g.id = gst.game_id ";
     if( $whereandlist ){
         $sql .= " WHERE " . implode( ' AND ', $whereandlist );
     }
-    return rstFormat( $db->fetchAll( $sql ) );
+    $sql .= " GROUP BY g.level";
+    if( $n = $db->fetchSingleValueSql( $sql ) ){
+        return $n;
+    }
+    return 0;
 }
 function getAverageHoursPerGame($db, $timeclause){
     $field = "AVG(UNIX_TIMESTAMP(finished) - UNIX_TIMESTAMP(start))/3600";
@@ -151,23 +241,53 @@ function getAverageHoursPerGame($db, $timeclause){
     if( $timeclause ){
         $sql .= " WHERE $timeclause";
     }
-    return $db->fetchSingleValueSql($sql);
+    if( $n = $db->fetchSingleValueSql( $sql ) ){
+        return $n;
+    }
+    return 0;
 }
-function getGamesStartedByLevel($db, $timeclause=false ){
-    $sql = "SELECT g.level, c.name category, COUNT(g.id) 'no. of games' FROM game g JOIN category c ON c.id = g.category_id";
+function getGamesStartedByLevel($db, $timeclause=false, $level=false, $categoryid=false ){
+    $sql = "SELECT COUNT(g.id) 'no. of games' FROM game g JOIN category c ON c.id = g.category_id";
+    $whereandlist = array();
     if( $timeclause ){
-        $sql .= " WHERE $timeclause";
+        $whereandlist[] = $timeclause;
+    }
+    if( $level ){
+        $whereandlist[] = "g.level = $level";
+    }
+    if( $categoryid ){
+        $whereandlist[] = "g.category_id = $categoryid";
+    }
+    if( $whereandlist ){
+        $sql .= " WHERE " . implode( ' AND ' , $whereandlist );
     }
     $sql .= " GROUP BY g.level, g.category_id";
-    $info = $db->fetchAll( $sql );
-    return rstFormat( $info );
+    //$info = $db->fetchAll( $sql );
+    //return rstFormat( $info );
+    if( $n = $db->fetchSingleValueSql( $sql ) ){
+        return $n;
+    }
+    return 0;
 }
-function getGamesWhichAchievedTarget( $db, $timeclause=false ){
-    $sql = "SELECT g.level, c.name category, COUNT(g.id) 'no. of games', SUM(gst.coinsearned) 'total coins' FROM gamestat gst JOIN game g ON g.id = gst.game_id JOIN category c ON c.id = g.category_id WHERE gst.coinsearned >= g.target";
+function getGamesWhichAchievedTarget( $db, $timeclause=false, $level=false, $categoryid=false ){
+    $sql = "SELECT g.level, c.name category, COUNT(g.id) 'no. of games', SUM(gst.coinsearned) 'total coins' FROM gamestat gst JOIN game g ON g.id = gst.game_id JOIN category c ON c.id = g.category_id";
+    $sql = "SELECT COUNT(g.id) 'no. of games' FROM gamestat gst JOIN game g ON g.id = gst.game_id JOIN category c ON c.id = g.category_id";
+    $whereandlist = array( 'gst.coinsearned >= g.target' );
     if( $timeclause ){
-        $sql .= " AND $timeclause";
+        $whereandlist[] = $timeclause;
+    }
+    if( $level ){
+        $whereandlist[] = "g.level = $level";
+    }
+    if( $categoryid ){
+        $whereandlist[] = "g.category_id = $categoryid";
+    }
+    if( $whereandlist ){
+        $sql .= " WHERE " . implode( ' AND ' , $whereandlist );
     }
     $sql .= " GROUP BY g.level, g.category_id";
-    $info = $db->fetchAll( $sql );
-    return rstFormat($info);
+    if( $n = $db->fetchSingleValueSql( $sql ) ){
+        return $n;
+    }
+    return 0;
 }
