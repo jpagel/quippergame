@@ -9,12 +9,13 @@ main();
 function main(){
     $startdate = date( 'Y-m-d', time() - (2 * 24 * 3600) );
     echo $startdate;
-    $stats = generateStats( $startdate );
 	$db = new database( getDbcredentials() );
+    $db->log( 'doing kpi' );
+    $stats = generateStats( $startdate );
     $db->insertKpi( $startdate, $stats );
     return $stats;
 }
-function generateStats( $startdate ){
+function generateStats( $db, $startdate ){
     $mysqlstart = "$startdate 00:00:00";
     $mysqlend = "$startdate 23:50:59";
     $timeclause = "g.start >= '$mysqlstart' AND g.start <= '$mysqlend'";
@@ -31,7 +32,6 @@ function generateStats( $startdate ){
          9 => 'Languages'
     );
     
-	$db = new database( getDbcredentials() );
     $tasklist = array();
     $tasklist[ 'total games started' ] = array( 'getTotalGamesStarted', array( $db, $timeclause ) );
     $tasklist[ 'friends invited per game' ] = array( 'getFriendsPerGame', array($db, $timeclause) );
