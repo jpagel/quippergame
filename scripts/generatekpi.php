@@ -11,7 +11,7 @@ function main(){
     echo $startdate;
 	$db = new database( getDbcredentials() );
     $db->log( 'doing kpi' );
-    $stats = generateStats( $startdate );
+    $stats = generateStats( $db, $startdate );
     $db->insertKpi( $startdate, $stats );
     return $stats;
 }
