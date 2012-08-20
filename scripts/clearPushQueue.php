@@ -38,5 +38,5 @@ function main( $cert ){
         }
         echo "\n";
     }
-    $db->log( "sent $n push notifications" );
+    //$db->log( "sent $n push notifications" );
 }

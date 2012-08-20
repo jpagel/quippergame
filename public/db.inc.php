@@ -54,7 +54,7 @@ class database{
         $sqlevent = $this->pdo->quote($event);
         $sql = "INSERT INTO log VALUES ( null, $sqlevent )";
         //turned off logging
-        //$this->pdo->exec( $sql );
+        $this->pdo->exec( $sql );
     }
     
     public function insertPush( $device, $msg ){
