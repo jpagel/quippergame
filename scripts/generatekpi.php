@@ -124,17 +124,23 @@ function getActiveUserIdListForTimeclause( $db, $timeclause ){
 
 function getCumulativeJewelsPerUser($db, $timeclause){
     $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
-    $jewelsql = "SELECT AVG(jewelsbought) FROM user WHERE id IN ($activeuserlist)";
-    if( $n = $db->fetchSingleValueSql($jewelsql) ){
-        return $n;
+    if( $activeuserlist ){
+	    $jewelsql = "SELECT AVG(jewelsbought) FROM user WHERE id IN ($activeuserlist)";
+        if( $n = $db->fetchSingleValueSql($jewelsql) ){
+            return $n;
+        }
+        return 0;
     }
     return 0;
 }
 function getCumulativeCoinsPerUser($db, $timeclause){
     $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
-    $sql = "SELECT AVG( coinsearned ) FROM user WHERE id IN ($activeuserlist)";
-    if( $n = $db->fetchSingleValueSql($sql) ){
-        return $n;
+    if( $activeuserlist ){
+         $sql = "SELECT AVG( coinsearned ) FROM user WHERE id IN ($activeuserlist)";
+         if( $n = $db->fetchSingleValueSql($sql) ){
+             return $n;
+         }
+         return 0;
     }
     return 0;
 }
@@ -169,7 +175,12 @@ function getAvgAcceptance($db, $subcat=false, $timeclause=false){
 }
 function countFacebookIds($db , $timeclause){
     $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
-    return $db->fetchSingleValueSql( "SELECT COUNT(id) FROM user WHERE username REGEXP('^[0-9]*$') AND id IN ($activeuserlist)" );
+    if( $activeuserlist ){
+        return $db->fetchSingleValueSql( "SELECT COUNT(id) FROM user WHERE username REGEXP('^[0-9]*$') AND id IN ($activeuserlist)" );
+    }
+    else{
+        return 0;
+    }
 }
 function getCorrectionrateByLevelByCat( $db , $timeclause=false, $level=false, $categoryid=false ){
     $sql = "SELECT SUM(gh.corrections)/COUNT(DISTINCT user_id) 'corrections per user' FROM gamehistory gh JOIN game g ON g.id = gh.game_id JOIN category c ON c.id = g.category_id "; 
