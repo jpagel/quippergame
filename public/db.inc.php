@@ -180,7 +180,7 @@ class database{
             JOIN category c ON c.id = g.category_id
             LEFT JOIN gamehistory gh ON gh.game_id = gs.game_id
             WHERE gs.user_id = $userid AND ISNULL( g.finished )
-                AND secondsremaining > 0
+                AND UNIX_TIMESTAMP(g.start + INTERVAL 1 DAY) - UNIX_TIMESTAMP() > 0
             GROUP BY gs.game_id
         ";
         $gamesessioninfo = $this->fetchAll( $gamesession_sql );
