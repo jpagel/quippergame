@@ -157,7 +157,10 @@ function getFriendsPerGame($db, $timeclause){
             WHERE $timeclause
             GROUP BY g.id
     ";
-    return $db->fetchSingleValueSql( $sql );
+    if( $n = $db->fetchSingleValueSql( $sql ) ){
+        return $n;
+    }
+    return 0;
 }
 function getAvgAcceptance($db, $subcat=false, $timeclause=false){
     if( $subcat ){
@@ -171,7 +174,10 @@ function getAvgAcceptance($db, $subcat=false, $timeclause=false){
             JOIN game g ON g.id = gst.game_id
             WHERE $timeclause;
     ";
-    return $db->fetchSingleValueSql($sql);
+    if( $n = $db->fetchSingleValueSql( $sql ) ){
+        return $n;
+    }
+    return 0;
 }
 function countFacebookIds($db , $timeclause){
     $activeuserlist = getActiveUserIdListForTimeclause( $db, $timeclause );
@@ -199,7 +205,10 @@ function getCorrectionrateByLevelByCat( $db , $timeclause=false, $level=false, $
         $sql .= " WHERE " . implode( ' AND ', $whereandlist );
     }
     $sql .= " GROUP BY g.level, g.category_id";
-    return $db->fetchSingleValueSql( $sql );
+    if( $n = $db->fetchSingleValueSql( $sql ) ){
+        return $n;
+    }
+    return 0;
 }
 function rstFormat( $rst ){
     $outlist = array();
