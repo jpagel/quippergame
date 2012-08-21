@@ -64,18 +64,20 @@ function mainn( $req, $post ){
         session_destroy();
         return loginform( $req );
     }
-    echo '
-        <form action="" method="POST">
-            <input type="hidden" name="logout" value="1" />
-            <input type="submit" value="logout" />
-        </form>
-    ';
 	$db = new database( getDbcredentials() );
     $availabledates = $db->getKpiList();
     if( $target = getArrayValue( $req, 'target' ) ){
         streamout( $db, $target );
     }
-    echo getAdminList( $availabledates );
+    else{
+        echo '
+        <form action="" method="POST">
+            <input type="hidden" name="logout" value="1" />
+            <input type="submit" value="logout" />
+        </form>
+        ';
+        echo getAdminList( $availabledates );
+    }
     return '';
 }
 
