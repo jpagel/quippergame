@@ -287,9 +287,10 @@ class database{
         ";
         $gameinfo = $this->fetchAll( $sql );
         $outlist = array();
-        foreach( $gameinfo as &$row ){
+        foreach( $gameinfo as &$row )
+		{
             $user = ( trim($row['displayname']) ) ? $row[ 'displayname' ] : $row[ 'username' ];
-            $outlist[] = array( 'user' => $user, 'score' => $row[ 'score' ] );
+            $outlist[] = array( 'user' => $user, 'score' => $row[ 'score' ], 'id' => $row[ 'username' ] );
         }
         return $outlist;
     }
