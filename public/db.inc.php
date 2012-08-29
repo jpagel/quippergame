@@ -437,6 +437,18 @@ class database{
         }
 */
         $toid = $to;
+
+			// JAVIER ADDED	
+
+         	//create gamehistory entry
+          	$sql = "INSERT INTO gamehistory (game_id, user_id, score) VALUES ($gameid, $toid, 0)
+                        ON DUPLICATE KEY UPDATE time = NOW()
+                ";
+                $this->pdo->exec( $sql );
+				
+			// JAVIER ADDED
+		
+		
         $sql = "INSERT INTO invitation (game_id, from_id, to_id, friend ) VALUES ($gameid, $fromid, $toid, $friend)";
         if( $status = $this->pdo->exec( $sql ) ){
             //stats
