@@ -159,64 +159,85 @@ function userIdIsNotAllowedToCreateGame( $db, $userid ){
     }
 }
 
-function createNewGame( $params, $debug=false ){
+function createNewGame( $params, $debug=false )
+{
 	$db = new database( getDbcredentials() );
     $db->log( "creating new game" );
     $creatorid = $db->getUserIdFromUserName( $params[ "user" ] );
     $fromid = $creatorid;
-    if( $error = userIdIsNotAllowedToCreateGame( $db, $creatorid ) ){
+    if( $error = userIdIsNotAllowedToCreateGame( $db, $creatorid ) )
+	{
         //jfp @todo put this back for production
         //return array( 'error' => $error );
     }
     $params[ 'creatorid' ] = $creatorid;
     $gameid = $db->startGame( $params );
     $tolist = array();
-    if( $gameid ){
+    if( $gameid )
+	{
         $gameinfo = array( 'gameid' => $gameid );
-        if( $to = getArrayValue( $params, 'to' ) ){
+        if( $to = getArrayValue( $params, 'to' ) )
+		{
             //send invitations to the to list
             $tolist = explode( ',', $to );
             $toisidsalready = false;
             $friends = 1;
         }
-        else{
+        else
+		{
             //no invitees ... choose 10 random invitees
             $tolist = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid );
             $toisidsalready = true;
             $friends = 0;
-            if( $debug ){
+            if( $debug )
+			{
                 $gameinfo[ 'tolist' ] = $tolist;
             }
         }
-        if( count($tolist) ){
+        if( count($tolist) )
+		{
             $errorlist = array();
             $from = $params[ 'user' ];
-            foreach( $tolist as $to ){
-                if( !$toisidsalready ){
+            foreach( $tolist as $to )
+			{
+                if( !$toisidsalready )
+				{
                     $toid = $db->getUserIdFromUserName( $to );
                 }
-                else{
+                else
+				{
                     $toid = $to;
                 }
-                if( $toid ){
-                    if( $error = inviteSingle( $gameid, $from, $toid, $friends, $db ) ){
+                if( $toid )
+				{
+                    if( $error = inviteSingle( $gameid, $from, $toid, $friends, $db ) )
+					{
+						// CREATE GAME SESSIONS FOR EACH USER
                         $errorlist[] = $error;
                     }
+					
+					$sql = "INSERT INTO gamesession (game_id, user_id) VALUES ($gameid, $toid)";
+                	$this->pdo->exec( $sql );
+					
                 }
             }
-            if( $diff = MAX_PLAYERS_PER_GAME - count( $tolist ) ){
+            if( $diff = MAX_PLAYERS_PER_GAME - count( $tolist ) )
+			{
                 //invite $diff strangers to make up the numbers
                 $tolistextra = $db->chooseTeammates( $gameid, $params[ 'category' ], $params[ 'level' ], $fromid, $diff, $tolist );
-                foreach( $tolistextra as $toid ){
+                foreach( $tolistextra as $toid )
+				{
                     if( !in_array( $toid, $tolist ) ){
-                        if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) ){
+                        if( $error = inviteSingle( $gameid, $from, $toid, 0, $db ) )
+						{
                             $errorlist[] = $error;
                         }
                     }
                 }
             }
         }
-        else{
+        else
+		{
             //no invitees
         }
         if( $errorlist ){

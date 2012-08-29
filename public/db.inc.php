@@ -122,7 +122,9 @@ class database{
             if( $n >= $maxno ){
                 $error = "Game $gameid is full";
             }
-            else{
+            else
+			{
+				// ADD USERS TO GAMEHISTORY
                 //add user to game
                 $sql = "INSERT INTO gamesession (game_id, user_id) VALUES ($gameid, $userid)";
                 $this->pdo->exec( $sql );
@@ -163,7 +165,8 @@ class database{
         return $error;
     }
 
-    public function getUserStatusScreen( $userid ){
+    public function getUserStatusScreen( $userid )
+	{
         $invitation_sql = "SELECT g.id gameid, invitor.displayname, c.id category
                             FROM invitation i
                             JOIN user invitor ON invitor.id = i.from_id
@@ -184,7 +187,8 @@ class database{
             GROUP BY gs.game_id
         ";
         $gamesessioninfo = $this->fetchAll( $gamesession_sql );
-        foreach( $gamesessioninfo as &$gamesession ){
+        foreach( $gamesessioninfo as &$gamesession )
+		{
             $totalseconds = $gamesession[ 'secondsremaining' ];
             $exacthours = $totalseconds / 3600;
             $gamesession[ 'hoursremaining' ] = floor( $exacthours );
@@ -212,12 +216,14 @@ class database{
         );
     }
 
-    public function countGamesCreatedSince( $userid, $timelimitHours ){
+    public function countGamesCreatedSince( $userid, $timelimitHours )
+	{
         $sql = "SELECT COUNT(id) FROM game WHERE creator_id = $userid AND (start + INTERVAL $timelimitHours HOUR) > NOW()";
         return $this->fetchSingleValueSql( $sql );
     }
 
-    public function usernameExists( $username ){
+    public function usernameExists( $username )
+	{
         return $this->valueExists( 'user', 'username', $username );
     }
 
@@ -436,6 +442,21 @@ class database{
             $toid = $to;
         }
 */
+
+
+		// JAVIER ADDED CODE
+		
+		$sql = "INSERT INTO gamesession (game_id, user_id) VALUES ($gameid, $to)";
+        $this->pdo->exec( $sql );
+	
+	
+	       //create gamehistory entry
+        $sql = "INSERT INTO gamehistory (game_id, user_id, score) VALUES ($gameid, $to, 0)
+                        ON DUPLICATE KEY UPDATE time = NOW()";
+        $this->pdo->exec( $sql );
+		
+		// JAVIER ADDED CODE
+	
         $toid = $to;
         $sql = "INSERT INTO invitation (game_id, from_id, to_id, friend ) VALUES ($gameid, $fromid, $toid, $friend)";
         if( $status = $this->pdo->exec( $sql ) ){
