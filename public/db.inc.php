@@ -446,13 +446,14 @@ class database{
 
 		// JAVIER ADDED CODE github
 		
-		$sql = "INSERT INTO gamesession (game_id, user_id) VALUES ($gameid, $to)";
-        $this->pdo->exec( $sql );
+		//$sql = "INSERT INTO gamesession (game_id, user_id) VALUES ($gameid, $to)";
+        //$this->pdo->exec( $sql );
 	
-		// create gamehistory entry
-        // $sql = "INSERT INTO gamehistory (game_id, user_id, score) VALUES ($gameid, $to, 0)
-        //              ON DUPLICATE KEY UPDATE time = NOW()";
-        // $this->pdo->exec( $sql );
+	
+	       //create gamehistory entry
+        $sql = "INSERT INTO gamehistory (game_id, user_id, score) VALUES ($gameid, $to, 0)
+                        ON DUPLICATE KEY UPDATE time = NOW()";
+        $this->pdo->exec( $sql );
 		
 		// JAVIER ADDED CODE
 	
