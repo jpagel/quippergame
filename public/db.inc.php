@@ -163,7 +163,8 @@ class database{
         return $error;
     }
 
-    public function getUserStatusScreen( $userid ){
+    public function getUserStatusScreen( $userid )
+	{
         $invitation_sql = "SELECT g.id gameid, invitor.displayname, c.id category
                             FROM invitation i
                             JOIN user invitor ON invitor.id = i.from_id
@@ -171,7 +172,8 @@ class database{
                             JOIN category c ON c.id = g.category_id
                             WHERE to_id = $userid
         ";
-        $gamesession_sql = "
+       
+			$gamesession_sql = "
             SELECT gs.game_id, c.id category,
                     SUM( gh.score ) currentscore, g.target,
                     UNIX_TIMESTAMP(g.start + INTERVAL 1 DAY) - UNIX_TIMESTAMP() secondsremaining
@@ -184,7 +186,8 @@ class database{
             GROUP BY gs.game_id
         ";
         $gamesessioninfo = $this->fetchAll( $gamesession_sql );
-        foreach( $gamesessioninfo as &$gamesession ){
+        foreach( $gamesessioninfo as &$gamesession )
+		{
             $totalseconds = $gamesession[ 'secondsremaining' ];
             $exacthours = $totalseconds / 3600;
             $gamesession[ 'hoursremaining' ] = floor( $exacthours );
@@ -280,7 +283,7 @@ class database{
     }
 
     public function getGameStatus( $gameid ){
-        $sql = "SELECT u.username, u.displayname, gh.score
+        $sql = "SELECT u.username, u.displayname, gh.score, gh.answers
                 FROM gamehistory gh
                 JOIN user u ON u.id = gh.user_id
                 WHERE game_id = $gameid ORDER BY gh.score DESC
@@ -290,7 +293,7 @@ class database{
         foreach( $gameinfo as &$row )
 		{
             $user = ( trim($row['displayname']) ) ? $row[ 'displayname' ] : $row[ 'username' ];
-            $outlist[] = array( 'user' => $user, 'score' => $row[ 'score' ], 'id' => $row[ 'username' ] );
+            $outlist[] = array( 'user' => $user, 'score' => $row[ 'score' ], 'id' => $row[ 'username' ], 'answers' => $row[ 'answers' ] );
         }
         return $outlist;
     }
