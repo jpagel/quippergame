@@ -191,10 +191,10 @@ class database{
 			
 			// JAVIER USERS COUNT INSIDE SESSION
 			
-			//$gil = $gamesession[ 'game_id' ];
+			$gil = $gamesession[ 'game_id' ];
 			
-			//$countsql = "SELECT COUNT(*) FROM gamesession WHERE game_id =" ;
-            // $n = array_shift( $this->fetchColumn( $countsql ) );
+			$countsql = "SELECT COUNT(*) FROM gamesession WHERE game_id =" ;
+            $n = array_shift( $this->fetchColumn( $countsql ) );
 						
             $totalseconds = $gamesession[ 'secondsremaining' ];
             $exacthours = $totalseconds / 3600;
@@ -205,7 +205,7 @@ class database{
             $remainder = $remainder - (60 * $gamesession[ 'minutesremaining' ]);
             $gamesession[ 'secondsremaining' ] = floor( $remainder );
 			
-			$gamesession[ 'carolo' ] = 666;
+			$gamesession[ 'count' ] = $n ;
 
         }
         $finished_sql = "
