@@ -191,11 +191,12 @@ class database{
 			
 			// JAVIER USERS COUNT INSIDE SESSION
 			
-			$gil = $gamesession[ 'game_id' ];
-			
-			$countsql = "SELECT COUNT(*) FROM gamesession WHERE game_id =$gil" ;
+			$gid = $gamesession[ 'game_id' ];
+			$countsql = "SELECT COUNT(*) FROM gamesession WHERE game_id =$gid" ;
             $n = array_shift( $this->fetchColumn( $countsql ) );
 						
+			// JAVIER USERS COUNT 
+			
             $totalseconds = $gamesession[ 'secondsremaining' ];
             $exacthours = $totalseconds / 3600;
             $gamesession[ 'hoursremaining' ] = floor( $exacthours );
