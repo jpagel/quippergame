@@ -188,6 +188,14 @@ class database{
         $gamesessioninfo = $this->fetchAll( $gamesession_sql );
         foreach( $gamesessioninfo as &$gamesession )
 		{
+			
+			// JAVIER USERS COUNT INSIDE SESSION
+			
+			//$gil = $gamesession[ 'game_id' ];
+			
+			//$countsql = "SELECT COUNT(*) FROM gamesession WHERE game_id =" ;
+            // $n = array_shift( $this->fetchColumn( $countsql ) );
+						
             $totalseconds = $gamesession[ 'secondsremaining' ];
             $exacthours = $totalseconds / 3600;
             $gamesession[ 'hoursremaining' ] = floor( $exacthours );
@@ -196,6 +204,9 @@ class database{
             $gamesession[ 'minutesremaining' ] = floor( $exactminutes );
             $remainder = $remainder - (60 * $gamesession[ 'minutesremaining' ]);
             $gamesession[ 'secondsremaining' ] = floor( $remainder );
+			
+			$gamesession[ 'carolo' ] = 666;
+
         }
         $finished_sql = "
             SELECT g.id game_id, c.id category, UNIX_TIMESTAMP(g.finished) - UNIX_TIMESTAMP(g.start) gamelengthSeconds,
