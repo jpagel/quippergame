@@ -193,7 +193,7 @@ class database{
 			
 			$gil = $gamesession[ 'game_id' ];
 			
-			$countsql = "SELECT COUNT(*) FROM gamesession WHERE game_id =" ;
+			$countsql = "SELECT COUNT(*) FROM gamesession WHERE game_id =$gil" ;
             $n = array_shift( $this->fetchColumn( $countsql ) );
 						
             $totalseconds = $gamesession[ 'secondsremaining' ];
