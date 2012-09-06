@@ -119,10 +119,12 @@ class database{
             $countsql = "SELECT COUNT(*) FROM gamesession WHERE game_id = $gameid";
             $n = array_shift( $this->fetchColumn( $countsql ) );
             $maxno = MAX_PLAYERS_PER_GAME;
-            if( $n >= $maxno ){
+            if( $n >= $maxno )
+			{
                 $error = "Game $gameid is full";
             }
-            else{
+            else
+			{
                 //add user to game
                 $sql = "INSERT INTO gamesession (game_id, user_id) VALUES ($gameid, $userid)";
                 $this->pdo->exec( $sql );
@@ -153,6 +155,14 @@ class database{
                 }
                 $this->gamestatIncrement( $gameid, $statsfield );
                 
+				
+				// JAVIER ADD
+		
+    			// $deviceid = $db->getDeviceIdForUserId( $g.creator );
+				// $db->log( "Sending Push to $g.creator device ID $deviceid" );
+	
+				// JAVIER ADD 
+		
                 //all is well ... return no error
                 return false;
             }
