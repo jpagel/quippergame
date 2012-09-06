@@ -18,7 +18,7 @@ else{
 
 
 function invalidateParams( $params ){
-    $required = array( 'user', 'gameid', 'score', 'answers' );
+    $required = array( 'user', 'gameid', 'answers' );
     $numeric = array( 'gameid', 'score' );
     $csn = array( 'answers' );
     return findError( $params, $required, $numeric, $csn, 5 );
