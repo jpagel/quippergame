@@ -5,7 +5,7 @@ define( 'COINS_BONUS_SECOND', 200 );
 define( 'COINS_BONUS_THIRD', 100 );
 define( 'COINS_BONUS_NOFPLAYERS', 100 );
 define( 'MAX_PLAYERS_PER_GAME', 10 );
-define( 'HISTORICAL_GAME_LIMIT', 3 );
+define( 'HISTORICAL_GAME_LIMIT', 10 );
 define( 'LOGIN_RESET_TIME_HOURS', 6 );
 define( 'PERIOD_GAME_CREATION_LIMIT', 4 );
 
