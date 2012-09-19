@@ -192,7 +192,7 @@ class database{
             LEFT JOIN gamehistory gh ON gh.game_id = gs.game_id
             WHERE gs.user_id = $userid AND ISNULL( g.finished )
                 AND UNIX_TIMESTAMP(g.start + INTERVAL 1 DAY) - UNIX_TIMESTAMP() > 0
-            GROUP BY gs.game_id ORDER BY g.id ASC
+            GROUP BY gs.game_id ORDER BY g.id DESC
         ";
         $gamesessioninfo = $this->fetchAll( $gamesession_sql );
         foreach( $gamesessioninfo as &$gamesession )
