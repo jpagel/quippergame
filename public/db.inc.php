@@ -175,12 +175,12 @@ class database{
 
     public function getUserStatusScreen( $userid )
 	{
-        $invitation_sql = "SELECT g.id gameid, invitor.displayname, c.id category g.start gstart
-                            FROM invitation i
+        $invitation_sql = "SELECT g.id gameid, invitor.displayname, c.id category
+                           	FROM invitation i
                             JOIN user invitor ON invitor.id = i.from_id
                             JOIN game g ON g.id = i.game_id
                             JOIN category c ON c.id = g.category_id
-                            WHERE to_id = $userid AND UNIX_TIMESTAMP(gstart + INTERVAL 1 DAY) - UNIX_TIMESTAMP() > 0";
+                            WHERE to_id = $userid AND UNIX_TIMESTAMP(g.start + INTERVAL 1 DAY) - UNIX_TIMESTAMP() > 0";
        
 			$gamesession_sql = "
             SELECT gs.game_id, c.id category,
