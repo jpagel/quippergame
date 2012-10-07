@@ -175,7 +175,7 @@ class database{
 
     public function getUserStatusScreen( $userid )
 	{
-        $invitation_sql = "SELECT g.id gameid, invitor.id, invitor.displayname, c.id category
+        $invitation_sql = "SELECT g.id gameid, invitor.id invitor_id, invitor.displayname, c.id category
                            	FROM invitation i
                             JOIN user invitor ON invitor.id = i.from_id
                             JOIN game g ON g.id = i.game_id
